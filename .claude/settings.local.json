@@ -7,7 +7,11 @@
       "Bash(git add:*)",
       "Bash(git commit -m \"$(cat <<''EOF''\ndocs: Add comprehensive project documentation\n\n- CLAUDE.md: Complete codebase guide for future AI instances\n- PLATFORM_PLAN.md: Original platform planning document\n- PRODUCTION_ROADMAP.md: 8-week production readiness roadmap\n- IMPLEMENTATION_SUMMARY.md: Detailed implementation guide\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git commit:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(npm test:*)",
+      "Bash(node -e:*)",
+      "Bash(npx playwright install chromium)",
+      "Bash(npm run test:e2e:*)"
     ],
     "deny": [],
     "ask": []
