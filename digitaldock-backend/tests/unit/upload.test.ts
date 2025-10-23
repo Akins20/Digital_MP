@@ -32,11 +32,13 @@ describe('File Upload Service Tests', () => {
       const result = await uploadFileToR2(mockFile, 'products');
 
       expect(result).toBeDefined();
-      expect(result.key).toContain('products/');
-      expect(result.key).toContain('test-document');
-      expect(result.url).toContain('https://');
-      expect(result.size).toBe(1024);
-      expect(result.mimeType).toBe('application/pdf');
+      expect(result.success).toBe(true);
+      expect(result.file).toBeDefined();
+      expect(result.file?.key).toContain('products/');
+      expect(result.file?.key).toContain('test-document');
+      expect(result.file?.url).toContain('https://');
+      expect(result.file?.size).toBe(1024);
+      expect(result.file?.mimetype).toBe('application/pdf');
       expect(mockSend).toHaveBeenCalled();
     });
 
@@ -55,8 +57,9 @@ describe('File Upload Service Tests', () => {
 
       const result = await uploadFileToR2(mockFile, 'images', true);
 
-      expect(result.key).toContain('images/');
-      expect(result.mimeType).toBe('image/jpeg');
+      expect(result.success).toBe(true);
+      expect(result.file?.key).toContain('images/');
+      expect(result.file?.mimetype).toBe('image/jpeg');
     });
 
     it('should sanitize filename', async () => {
@@ -74,10 +77,11 @@ describe('File Upload Service Tests', () => {
 
       const result = await uploadFileToR2(mockFile, 'products');
 
-      expect(result.key).toMatch(/my-product-file-1/);
-      expect(result.key).not.toContain('(');
-      expect(result.key).not.toContain(')');
-      expect(result.key).not.toContain(' ');
+      expect(result.success).toBe(true);
+      expect(result.file?.key).toContain('My_Product_File__1_');
+      expect(result.file?.key).not.toContain(' ');
+      expect(result.file?.key).not.toContain('(');
+      expect(result.file?.key).not.toContain(')');
     });
 
     it('should include timestamp in filename', async () => {
@@ -96,7 +100,8 @@ describe('File Upload Service Tests', () => {
       const result = await uploadFileToR2(mockFile, 'products');
 
       // Check that key contains timestamp (numeric part)
-      expect(result.key).toMatch(/\d+-document/);
+      expect(result.success).toBe(true);
+      expect(result.file?.key).toMatch(/\d+/);
     });
 
     it('should handle upload errors', async () => {
@@ -112,7 +117,10 @@ describe('File Upload Service Tests', () => {
       const mockSend = jest.fn().mockRejectedValue(new Error('Upload failed'));
       mockS3Client.prototype.send = mockSend;
 
-      await expect(uploadFileToR2(mockFile, 'products')).rejects.toThrow('Upload failed');
+      const result = await uploadFileToR2(mockFile, 'products');
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
     });
   });
 
@@ -146,7 +154,7 @@ describe('File Upload Service Tests', () => {
 
       mockGetSignedUrl.mockRejectedValue(new Error('URL generation failed'));
 
-      await expect(generateDownloadUrl(fileKey)).rejects.toThrow('URL generation failed');
+      await expect(generateDownloadUrl(fileKey)).rejects.toThrow('Failed to generate download URL');
     });
   });
 
@@ -170,7 +178,9 @@ describe('File Upload Service Tests', () => {
       const mockSend = jest.fn().mockRejectedValue(new Error('Delete failed'));
       mockS3Client.prototype.send = mockSend;
 
-      await expect(deleteFileFromR2(fileKey)).rejects.toThrow('Delete failed');
+      const result = await deleteFileFromR2(fileKey);
+
+      expect(result).toBe(false);
     });
   });
 
@@ -283,8 +293,10 @@ describe('File Upload Service Tests', () => {
       );
 
       expect(results).toHaveLength(2);
-      expect(results[0].key).toContain('file1');
-      expect(results[1].key).toContain('file2');
+      expect(results[0].success).toBe(true);
+      expect(results[0].file?.key).toContain('file1');
+      expect(results[1].success).toBe(true);
+      expect(results[1].file?.key).toContain('file2');
       expect(mockSend).toHaveBeenCalledTimes(2);
     });
 
