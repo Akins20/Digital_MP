@@ -4,13 +4,14 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { IOSCard, IOSButton, IOSBadge } from '@/components/ios';
-import { Search, Lock, Zap, Shield, LayoutGrid, Star, TrendingUp, ArrowRight } from 'lucide-react';
+import { Search, Lock, Zap, Shield, LayoutGrid, Star, TrendingUp, ArrowRight, FileText, Palette, Code, Music, Box, BookOpen, Image, Video, Type, Blocks, Package } from 'lucide-react';
 
 interface Product {
   _id: string;
   title: string;
   description: string;
   price: number;
+  currency: string;
   coverImage?: string;
   seller: {
     name: string;
@@ -20,13 +21,32 @@ interface Product {
   totalSales?: number;
 }
 
+interface CategoryData {
+  name: string;
+  icon: any;
+  count: number;
+}
+
 export default function Home() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [categories, setCategories] = useState<CategoryData[]>([
+    { name: 'Templates', icon: FileText, count: 0 },
+    { name: 'Graphics', icon: Palette, count: 0 },
+    { name: 'Software', icon: Code, count: 0 },
+    { name: 'Audio', icon: Music, count: 0 },
+    { name: '3D Models', icon: Box, count: 0 },
+    { name: 'Ebooks', icon: BookOpen, count: 0 },
+    { name: 'Photos', icon: Image, count: 0 },
+    { name: 'Videos', icon: Video, count: 0 },
+    { name: 'Fonts', icon: Type, count: 0 },
+    { name: 'Themes', icon: Blocks, count: 0 },
+  ]);
 
   useEffect(() => {
     fetchFeaturedProducts();
+    fetchCategoryCounts();
   }, []);
 
   const fetchFeaturedProducts = async () => {
@@ -43,14 +63,29 @@ export default function Home() {
     }
   };
 
-  const categories = [
-    { name: 'Templates', icon: '📄', count: '2.5K+' },
-    { name: 'Graphics', icon: '🎨', count: '3.2K+' },
-    { name: 'Software', icon: '💻', count: '1.8K+' },
-    { name: 'Audio', icon: '🎵', count: '950+' },
-    { name: '3D Models', icon: '🎲', count: '680+' },
-    { name: 'Ebooks', icon: '📚', count: '1.2K+' },
-  ];
+  const fetchCategoryCounts = async () => {
+    try {
+      const updatedCategories = await Promise.all(
+        categories.map(async (category) => {
+          try {
+            const response = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/products?category=${encodeURIComponent(category.name)}&limit=1`
+            );
+            if (response.ok) {
+              const data = await response.json();
+              return { ...category, count: data.total || 0 };
+            }
+          } catch (error) {
+            console.error(`Error fetching count for ${category.name}:`, error);
+          }
+          return category;
+        })
+      );
+      setCategories(updatedCategories.filter(cat => cat.count > 0).slice(0, 6));
+    } catch (error) {
+      console.error('Error fetching category counts:', error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-ios-gray-50 via-white to-ios-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-ios-blue-900/20 pt-16">
@@ -117,19 +152,26 @@ export default function Home() {
             </Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-ios-sm">
-            {categories.map((category, i) => (
-              <Link key={i} href={`/marketplace?category=${category.name}`}>
-                <IOSCard blur hover padding="md" className="text-center cursor-pointer">
-                  <div className="text-4xl mb-ios-sm">{category.icon}</div>
-                  <h3 className="text-ios-footnote font-semibold text-gray-900 dark:text-white mb-ios-xs">
-                    {category.name}
-                  </h3>
-                  <p className="text-ios-caption1 text-gray-600 dark:text-gray-400">
-                    {category.count}
-                  </p>
-                </IOSCard>
-              </Link>
-            ))}
+            {categories.map((category, i) => {
+              const IconComponent = category.icon;
+              return (
+                <Link key={i} href={`/marketplace?category=${category.name}`}>
+                  <IOSCard blur hover padding="md" className="text-center cursor-pointer">
+                    <div className="w-12 h-12 mx-auto mb-ios-sm bg-gradient-to-br from-ios-blue-500 to-ios-purple-500 rounded-ios-lg flex items-center justify-center">
+                      <IconComponent className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-ios-footnote font-semibold text-gray-900 dark:text-white mb-ios-xs">
+                      {category.name}
+                    </h3>
+                    {category.count > 0 && (
+                      <p className="text-ios-caption1 text-gray-600 dark:text-gray-400">
+                        {category.count} {category.count === 1 ? 'product' : 'products'}
+                      </p>
+                    )}
+                  </IOSCard>
+                </Link>
+              );
+            })}
           </div>
         </div>
 
@@ -175,7 +217,7 @@ export default function Home() {
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       ) : (
-                        <div className="text-6xl">📦</div>
+                        <Package className="w-16 h-16 text-white/80" />
                       )}
                       <div className="absolute top-ios-sm right-ios-sm">
                         <IOSBadge variant="primary">{product.category}</IOSBadge>
@@ -191,7 +233,7 @@ export default function Home() {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-ios-title3 font-bold text-ios-blue-500">
-                            ${product.price}
+                            {product.currency} {product.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </p>
                           <p className="text-ios-caption2 text-gray-500 dark:text-gray-400">
                             by {product.seller.name}

@@ -4,13 +4,14 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { IOSCard, IOSBadge, IOSButton } from '@/components/ios';
-import { Search, Filter, SlidersHorizontal, Star, X } from 'lucide-react';
+import { Search, Filter, SlidersHorizontal, Star, X, Package } from 'lucide-react';
 
 interface Product {
   _id: string;
   title: string;
   description: string;
   price: number;
+  currency: string;
   coverImage?: string;
   seller: {
     name: string;
@@ -335,7 +336,7 @@ export default function SearchPage() {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : (
-                      <div className="text-6xl">📦</div>
+                      <Package className="w-16 h-16 text-white/80" />
                     )}
                     <div className="absolute top-ios-sm right-ios-sm">
                       <IOSBadge variant="primary">{product.category}</IOSBadge>
@@ -351,7 +352,7 @@ export default function SearchPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-ios-title3 font-bold text-ios-blue-500">
-                          ${product.price}
+                          {product.currency} {product.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>
                         <p className="text-ios-caption2 text-gray-500 dark:text-gray-400">
                           by {product.seller.name}

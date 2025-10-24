@@ -10,13 +10,14 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { IOSButton } from '@/components/ios';
-import { Menu, X, Home, ShoppingBag, LayoutGrid, Package, LogOut, User, Settings, ChevronDown, Search } from 'lucide-react';
+import { Menu, X, Home, ShoppingBag, LayoutGrid, Package, LogOut, User, Settings, ChevronDown, Search, Box } from 'lucide-react';
 
 interface SearchResult {
   _id: string;
   title: string;
   description: string;
   price: number;
+  currency: string;
   category: string;
   coverImage?: string;
 }
@@ -192,7 +193,7 @@ export default function Navigation() {
                       {product.coverImage ? (
                         <img src={product.coverImage} alt={product.title} className="w-full h-full object-cover" />
                       ) : (
-                        <span className="text-2xl">📦</span>
+                        <Box className="w-6 h-6 text-white/80" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -203,7 +204,9 @@ export default function Navigation() {
                         {highlightMatch(product.description, searchQuery)}
                       </p>
                       <div className="flex items-center gap-ios-sm mt-ios-xs">
-                        <span className="text-ios-caption1 font-bold text-ios-blue-500">${product.price}</span>
+                        <span className="text-ios-caption1 font-bold text-ios-blue-500">
+                          {product.currency} {product.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
                         <span className="text-ios-caption2 text-gray-500 dark:text-gray-400">in {product.category}</span>
                       </div>
                     </div>
