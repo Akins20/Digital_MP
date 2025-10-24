@@ -12,7 +12,7 @@ import {
   deleteProduct,
   getMyProducts,
 } from '../controllers/product.controller';
-import { authenticate, requireSeller } from '../middleware/auth';
+import { authenticate, optionalAuthenticate, requireSeller } from '../middleware/auth';
 
 const router = Router();
 
@@ -73,7 +73,7 @@ const router = Router();
  *       200:
  *         description: List of products
  */
-router.get('/', getProducts);
+router.get('/', optionalAuthenticate, getProducts);
 
 /**
  * @swagger
@@ -109,7 +109,7 @@ router.get('/my', authenticate, requireSeller, getMyProducts);
  *       404:
  *         description: Product not found
  */
-router.get('/:id', getProduct);
+router.get('/:id', optionalAuthenticate, getProduct);
 
 /**
  * @swagger

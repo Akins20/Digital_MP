@@ -275,7 +275,8 @@ productSchema.virtual('purchases', {
 
 // Pre-save middleware to generate slug
 productSchema.pre('save', async function (next) {
-  if (this.isModified('title') && !this.slug) {
+  // Generate slug if: it's a new document OR title was modified and slug is empty
+  if (this.isNew || (this.isModified('title') && !this.slug)) {
     let baseSlug = this.title
       .toLowerCase()
       .trim()

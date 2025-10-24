@@ -13,7 +13,7 @@ export interface AuthRequest extends Request {
 }
 
 /**
- * Middleware to authenticate requests
+ * Middleware to authenticate requests (required)
  */
 export const authenticate = (req: AuthRequest, res: Response, next: NextFunction): void => {
   try {
@@ -36,6 +36,36 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
     next();
   } catch (error) {
     res.status(401).json({ error: 'Authentication failed' });
+  }
+};
+
+/**
+ * Middleware to optionally authenticate requests
+ * Sets req.user if a valid token is provided, but doesn't fail if no token
+ */
+export const optionalAuthenticate = (req: AuthRequest, res: Response, next: NextFunction): void => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = extractTokenFromHeader(authHeader);
+
+    // If no token, just continue without setting req.user
+    if (!token) {
+      next();
+      return;
+    }
+
+    const user = verifyToken(token);
+
+    // If valid token, set req.user
+    if (user) {
+      req.user = user;
+    }
+
+    // Always continue, even if token is invalid
+    next();
+  } catch (error) {
+    // Even if there's an error, continue without authentication
+    next();
   }
 };
 

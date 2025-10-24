@@ -122,19 +122,13 @@ export const getProduct = async (req: AuthRequest, res: Response): Promise<void>
     const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(id);
 
     if (isValidObjectId) {
-      // Try to find by ID first
-      product = await Product.findById(id).populate(
-        'seller',
-        'name email avatar sellerSlug isVerifiedSeller'
-      );
+      // Try to find by ID first (don't populate yet)
+      product = await Product.findById(id);
     }
 
     // If not found by ID or not a valid ObjectId, try by slug
     if (!product) {
-      product = await Product.findOne({ slug: id }).populate(
-        'seller',
-        'name email avatar sellerSlug isVerifiedSeller'
-      );
+      product = await Product.findOne({ slug: id });
     }
 
     if (!product) {
@@ -142,14 +136,20 @@ export const getProduct = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
+    // Store the seller ID before populating (it's an ObjectId at this point)
+    const sellerId = product.seller.toString();
+
     // Check if user can view this product
     if (product.status !== ProductStatus.PUBLISHED) {
       // Only seller or admin can view unpublished products
-      if (!req.user || (req.user.userId !== product.seller._id.toString() && req.user.role !== 'ADMIN')) {
+      if (!req.user || (req.user.userId !== sellerId && req.user.role !== 'ADMIN')) {
         res.status(404).json({ error: 'Product not found' });
         return;
       }
     }
+
+    // Now populate the seller info
+    await product.populate('seller', 'name email avatar sellerSlug isVerifiedSeller');
 
     res.status(200).json({ product: product.toJSON() });
   } catch (error) {
