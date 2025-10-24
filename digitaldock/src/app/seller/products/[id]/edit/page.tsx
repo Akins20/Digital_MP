@@ -121,7 +121,7 @@ export default function ProductEditPage() {
         requirements: formData.requirements || undefined,
         includesUpdates: formData.includesUpdates,
         includesSupport: formData.includesSupport,
-        status: statusOverride || formData.status,
+        status: (statusOverride || formData.status) as productsApi.ProductStatus,
       };
 
       await productsApi.updateProduct(token, params.id as string, updateData);

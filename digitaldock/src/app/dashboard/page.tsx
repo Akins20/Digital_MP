@@ -22,7 +22,7 @@ function DashboardContent() {
     try {
       await refreshUser();
       alert('Profile refreshed successfully!');
-    } catch (error) {
+    } catch {
       alert('Failed to refresh profile');
     }
   };
@@ -62,7 +62,7 @@ function DashboardContent() {
               Welcome back{user?.name ? `, ${user.name}` : ''}!
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              You're successfully logged in to your DigitalDock dashboard.
+              You&apos;re successfully logged in to your DigitalDock dashboard.
             </p>
           </div>
 
@@ -167,7 +167,7 @@ function DashboardContent() {
                 </h4>
                 <p className="mt-1 text-sm text-blue-700 dark:text-blue-300">
                   Your session is protected with cookie-based sliding sessions.
-                  The session will automatically extend every 5 minutes while you're active.
+                  The session will automatically extend every 5 minutes while you&apos;re active.
                   Session expires 1 day after your last activity.
                 </p>
               </div>

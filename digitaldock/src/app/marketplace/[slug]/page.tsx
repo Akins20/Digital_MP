@@ -6,23 +6,56 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Script from 'next/script';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNotification } from '@/contexts/NotificationContext';
 import * as productsApi from '@/lib/api/products';
+import * as purchasesApi from '@/lib/api/purchases';
+
+// Extend Window interface for Paystack
+declare global {
+  interface Window {
+    PaystackPop?: {
+      setup: (config: {
+        key: string;
+        email: string;
+        amount: number;
+        currency: string;
+        ref: string;
+        callback: (response: { reference: string }) => void;
+        onClose: () => void;
+      }) => {
+        openIframe: () => void;
+      };
+    };
+  }
+}
 
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { user, isAuthenticated } = useAuth();
+  const searchParams = useSearchParams();
+  const { user, token, isAuthenticated } = useAuth();
+  const { success, error: showError } = useNotification();
   const [product, setProduct] = useState<productsApi.Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [isPurchasing, setIsPurchasing] = useState(false);
+  const [paystackLoaded, setPaystackLoaded] = useState(false);
 
   useEffect(() => {
     loadProduct();
   }, [params.slug]);
+
+  // Check for payment verification callback
+  useEffect(() => {
+    const reference = searchParams.get('reference');
+    if (reference && token) {
+      verifyPayment(reference);
+    }
+  }, [searchParams, token]);
 
   const loadProduct = async () => {
     try {
@@ -38,18 +71,78 @@ export default function ProductDetailPage() {
     }
   };
 
+  const verifyPayment = async (reference: string) => {
+    if (!token) return;
+
+    try {
+      const response = await purchasesApi.verifyPurchase(token, reference);
+
+      if (response.purchase.paymentStatus === 'COMPLETED') {
+        success('Purchase completed successfully! You can now download your product.', 'Success');
+        // Redirect to download page
+        router.push(`/dashboard/purchases/${response.purchase.id}`);
+      } else {
+        showError('Payment verification failed. Please contact support.', 'Error');
+      }
+    } catch (error: any) {
+      console.error('Payment verification failed:', error);
+      showError(error.message || 'Failed to verify payment', 'Error');
+    }
+  };
+
   const handlePurchase = async () => {
     if (!isAuthenticated) {
       router.push(`/login?redirect=/marketplace/${params.slug}`);
       return;
     }
 
-    // TODO: Implement purchase flow
-    setIsPurchasing(true);
-    setTimeout(() => {
-      alert('Purchase feature coming soon!');
+    if (!token || !product) {
+      showError('Unable to process purchase. Please try again.', 'Error');
+      return;
+    }
+
+    if (!paystackLoaded) {
+      showError('Payment system is loading. Please try again in a moment.', 'Error');
+      return;
+    }
+
+    try {
+      setIsPurchasing(true);
+
+      // Initialize purchase with backend
+      const response = await purchasesApi.initializePurchase(token, {
+        productId: product.id,
+      });
+
+      // Open Paystack payment popup
+      if (window.PaystackPop) {
+        const handler = window.PaystackPop.setup({
+          key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || '',
+          email: user?.email || '',
+          amount: Math.round(response.purchase.amount * 100), // Convert to kobo/cents
+          currency: response.purchase.currency,
+          ref: response.reference,
+          callback: (paystackResponse) => {
+            // Payment successful, verify on backend
+            success('Payment successful! Verifying...', 'Success');
+            verifyPayment(paystackResponse.reference);
+          },
+          onClose: () => {
+            setIsPurchasing(false);
+            showError('Payment cancelled', 'Info');
+          },
+        });
+
+        handler.openIframe();
+      } else {
+        showError('Payment system not available. Please refresh the page.', 'Error');
+        setIsPurchasing(false);
+      }
+    } catch (error: any) {
+      console.error('Purchase failed:', error);
+      showError(error.message || 'Failed to initialize purchase', 'Error');
       setIsPurchasing(false);
-    }, 1000);
+    }
   };
 
   const formatPrice = (price: number, currency: string = 'USD') => {
@@ -101,8 +194,19 @@ export default function ProductDetailPage() {
   const allImages = [product.coverImage, ...product.images];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <>
+      {/* Load Paystack Script */}
+      <Script
+        src="https://js.paystack.co/v1/inline.js"
+        onLoad={() => setPaystackLoaded(true)}
+        onError={() => {
+          console.error('Failed to load Paystack script');
+          showError('Payment system failed to load. Please refresh the page.', 'Error');
+        }}
+      />
+
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
         <nav className="flex mb-8 text-sm">
           <Link
@@ -407,5 +511,6 @@ export default function ProductDetailPage() {
         </div> */}
       </main>
     </div>
+    </>
   );
 }

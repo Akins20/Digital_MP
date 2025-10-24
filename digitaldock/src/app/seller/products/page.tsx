@@ -92,7 +92,7 @@ export default function SellerProductsPage() {
     }
   };
 
-  const handleStatusChange = async (productId: string, newStatus: 'PUBLISHED' | 'DRAFT' | 'ARCHIVED') => {
+  const handleStatusChange = async (productId: string, newStatus: productsApi.ProductStatus) => {
     if (!token) {
       showError('Authentication required', 'Error');
       return;
@@ -224,7 +224,7 @@ export default function SellerProductsPage() {
               onChange={(e) =>
                 setFilters((prev) => ({
                   ...prev,
-                  status: e.target.value || undefined,
+                  status: e.target.value ? e.target.value as productsApi.ProductStatus : undefined,
                   page: 1,
                 }))
               }
@@ -418,7 +418,7 @@ export default function SellerProductsPage() {
                             {/* Publish/Unpublish */}
                             {product.status === 'PUBLISHED' ? (
                               <button
-                                onClick={() => handleStatusChange(product.id, 'DRAFT')}
+                                onClick={() => handleStatusChange(product.id, productsApi.ProductStatus.DRAFT)}
                                 className="text-yellow-600 dark:text-yellow-400 hover:text-yellow-900 dark:hover:text-yellow-300"
                                 title="Unpublish"
                               >
@@ -438,7 +438,7 @@ export default function SellerProductsPage() {
                               </button>
                             ) : (
                               <button
-                                onClick={() => handleStatusChange(product.id, 'PUBLISHED')}
+                                onClick={() => handleStatusChange(product.id, productsApi.ProductStatus.PUBLISHED)}
                                 className="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300"
                                 title="Publish"
                               >

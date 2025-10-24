@@ -11,7 +11,8 @@
       "Bash(npm test:*)",
       "Bash(node -e:*)",
       "Bash(npx playwright install chromium)",
-      "Bash(npm run test:e2e:*)"
+      "Bash(npm run test:e2e:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
