@@ -108,6 +108,12 @@ export interface CreateProductData {
   currency?: string;
   coverImage: string;
   images?: string[];
+  files?: Array<{
+    url: string;
+    name: string;
+    size: number;
+    type: string;
+  }>;
   demoUrl?: string | null;
   requirements?: string | null;
   includesUpdates?: boolean;

@@ -10,6 +10,8 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotification } from '@/contexts/NotificationContext';
 import * as productsApi from '@/lib/api/products';
+import * as uploadApi from '@/lib/api/upload';
+import FileUpload from '@/components/FileUpload';
 
 export default function CreateProductPage() {
   const router = useRouter();
@@ -38,6 +40,12 @@ export default function CreateProductPage() {
   const [tagInput, setTagInput] = useState('');
   const [imageInput, setImageInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Upload state
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const [isUploadingFiles, setIsUploadingFiles] = useState(false);
+  const [productFiles, setProductFiles] = useState<Array<{ name: string; url: string; size: number; type: string; key: string }>>([]);
 
   // Redirect if not authenticated or not a seller
   useEffect(() => {
@@ -103,6 +111,87 @@ export default function CreateProductPage() {
     }));
   };
 
+  // Upload handlers
+  const handleCoverImageUpload = async (files: File[]) => {
+    if (!token) {
+      showError('Authentication required', 'Error');
+      return;
+    }
+
+    if (files.length === 0) return;
+
+    try {
+      setIsUploadingCover(true);
+      const response = await uploadApi.uploadImage(token, files[0], 'products/covers');
+
+      if (response.file) {
+        setFormData((prev) => ({ ...prev, coverImage: response.file!.url }));
+        success('Cover image uploaded successfully', 'Success');
+      }
+    } catch (error: any) {
+      console.error('Failed to upload cover image:', error);
+      showError(error.message || 'Failed to upload cover image', 'Error');
+    } finally {
+      setIsUploadingCover(false);
+    }
+  };
+
+  const handleAdditionalImagesUpload = async (files: File[]) => {
+    if (!token) {
+      showError('Authentication required', 'Error');
+      return;
+    }
+
+    if (files.length === 0) return;
+
+    try {
+      setIsUploadingImages(true);
+      const response = await uploadApi.uploadImages(token, files, 'products/images');
+
+      if (response.files) {
+        const newImageUrls = response.files.map(f => f.url);
+        setFormData((prev) => ({
+          ...prev,
+          images: [...prev.images, ...newImageUrls].slice(0, 10), // Max 10 images
+        }));
+        success(`${response.files.length} image(s) uploaded successfully`, 'Success');
+      }
+    } catch (error: any) {
+      console.error('Failed to upload images:', error);
+      showError(error.message || 'Failed to upload images', 'Error');
+    } finally {
+      setIsUploadingImages(false);
+    }
+  };
+
+  const handleProductFilesUpload = async (files: File[]) => {
+    if (!token) {
+      showError('Authentication required', 'Error');
+      return;
+    }
+
+    if (files.length === 0) return;
+
+    try {
+      setIsUploadingFiles(true);
+      const response = await uploadApi.uploadFiles(token, files, 'products/files');
+
+      if (response.files) {
+        setProductFiles((prev) => [...prev, ...response.files!]);
+        success(`${response.files.length} file(s) uploaded successfully`, 'Success');
+      }
+    } catch (error: any) {
+      console.error('Failed to upload files:', error);
+      showError(error.message || 'Failed to upload files', 'Error');
+    } finally {
+      setIsUploadingFiles(false);
+    }
+  };
+
+  const handleRemoveProductFile = (key: string) => {
+    setProductFiles((prev) => prev.filter(f => f.key !== key));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -123,7 +212,12 @@ export default function CreateProductPage() {
     }
 
     if (!formData.coverImage.trim()) {
-      showError('Cover image URL is required', 'Validation Error');
+      showError('Cover image is required', 'Validation Error');
+      return;
+    }
+
+    if (productFiles.length === 0) {
+      showError('At least one product file is required', 'Validation Error');
       return;
     }
 
@@ -147,6 +241,12 @@ export default function CreateProductPage() {
         currency: formData.currency,
         coverImage: formData.coverImage.trim(),
         images: formData.images,
+        files: productFiles.map(f => ({
+          url: f.url,
+          name: f.name,
+          size: f.size,
+          type: f.type,
+        })),
         demoUrl: formData.demoUrl.trim() || null,
         requirements: formData.requirements.trim() || null,
         includesUpdates: formData.includesUpdates,
@@ -345,66 +445,65 @@ export default function CreateProductPage() {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Media</h2>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
+              {/* Cover Image Upload */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Cover Image URL *
-                </label>
-                <input
-                  type="url"
-                  name="coverImage"
-                  value={formData.coverImage}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                  placeholder="https://example.com/image.jpg"
+                <FileUpload
+                  accept="image/*"
+                  multiple={false}
+                  maxSizeMB={5}
+                  maxFiles={1}
+                  onFilesSelected={handleCoverImageUpload}
+                  disabled={isUploadingCover}
+                  label="Cover Image *"
+                  helperText="Upload a cover image for your product (max 5MB)"
                 />
+                {isUploadingCover && (
+                  <div className="mt-2 flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
+                    <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                    Uploading...
+                  </div>
+                )}
                 {formData.coverImage && (
-                  <img
-                    src={formData.coverImage}
-                    alt="Cover preview"
-                    className="mt-2 w-full h-48 object-cover rounded-lg"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
+                  <div className="mt-3">
+                    <img
+                      src={formData.coverImage}
+                      alt="Cover preview"
+                      className="w-full h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  </div>
                 )}
               </div>
 
+              {/* Additional Images Upload */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Additional Images (max 10)
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="url"
-                    value={imageInput}
-                    onChange={(e) => setImageInput(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleAddImage();
-                      }
-                    }}
-                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                    placeholder="https://example.com/image.jpg"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleAddImage}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
-                  >
-                    Add
-                  </button>
-                </div>
+                <FileUpload
+                  accept="image/*"
+                  multiple={true}
+                  maxSizeMB={5}
+                  maxFiles={10 - formData.images.length}
+                  onFilesSelected={handleAdditionalImagesUpload}
+                  disabled={isUploadingImages || formData.images.length >= 10}
+                  label="Additional Images (optional)"
+                  helperText={`Upload additional product images (${formData.images.length}/10)`}
+                />
+                {isUploadingImages && (
+                  <div className="mt-2 flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
+                    <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                    Uploading...
+                  </div>
+                )}
                 {formData.images.length > 0 && (
-                  <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-2">
+                  <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2">
                     {formData.images.map((image, index) => (
                       <div key={index} className="relative group">
                         <img
                           src={image}
                           alt={`Product image ${index + 1}`}
-                          className="w-full h-24 object-cover rounded"
+                          className="w-full h-24 object-cover rounded border border-gray-200 dark:border-gray-700"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
                           }}
@@ -412,7 +511,7 @@ export default function CreateProductPage() {
                         <button
                           type="button"
                           onClick={() => handleRemoveImage(image)}
-                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
+                          className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
                         >
                           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path
@@ -428,6 +527,7 @@ export default function CreateProductPage() {
                 )}
               </div>
 
+              {/* Demo URL */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Demo URL (optional)
@@ -442,6 +542,83 @@ export default function CreateProductPage() {
                 />
               </div>
             </div>
+          </div>
+
+          {/* Product Files */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+              Product Files *
+            </h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Upload the digital files that buyers will receive after purchase
+            </p>
+
+            <FileUpload
+              multiple={true}
+              maxSizeMB={100}
+              maxFiles={20}
+              onFilesSelected={handleProductFilesUpload}
+              disabled={isUploadingFiles}
+              label="Upload Product Files"
+              helperText="Upload the files buyers will download (max 100MB per file, 20 files max)"
+            />
+            {isUploadingFiles && (
+              <div className="mt-2 flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
+                <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                Uploading files...
+              </div>
+            )}
+
+            {productFiles.length > 0 && (
+              <div className="mt-4 space-y-2">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Uploaded Files ({productFiles.length})
+                </p>
+                {productFiles.map((file, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <svg
+                        className="w-8 h-8 text-blue-600 dark:text-blue-400 flex-shrink-0"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                        />
+                      </svg>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                          {file.name}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {(file.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveProductFile(file.key)}
+                      className="ml-2 p-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                    >
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          fillRule="evenodd"
+                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Tags */}
