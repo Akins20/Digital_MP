@@ -2,15 +2,24 @@
 
 /**
  * Navigation Component
- * Main navigation bar for the application
+ * Main navigation bar with global search functionality
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { IOSButton } from '@/components/ios';
-import { Menu, X, Home, ShoppingBag, LayoutGrid, Package, LogOut, User, Settings, ChevronDown } from 'lucide-react';
+import { Menu, X, Home, ShoppingBag, LayoutGrid, Package, LogOut, User, Settings, ChevronDown, Search } from 'lucide-react';
+
+interface SearchResult {
+  _id: string;
+  title: string;
+  description: string;
+  price: number;
+  category: string;
+  coverImage?: string;
+}
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -19,6 +28,14 @@ export default function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  // Search states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const searchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,11 +53,52 @@ export default function Navigation() {
       if (isUserMenuOpen && !target.closest('.user-menu-container')) {
         setIsUserMenuOpen(false);
       }
+      if (showSearchDropdown && searchRef.current && !searchRef.current.contains(target)) {
+        setShowSearchDropdown(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isUserMenuOpen]);
+  }, [isUserMenuOpen, showSearchDropdown]);
+
+  // Search functionality
+  useEffect(() => {
+    if (searchQuery.trim().length < 2) {
+      setSearchResults([]);
+      setShowSearchDropdown(false);
+      return;
+    }
+
+    // Debounce search
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    setIsSearching(true);
+    searchTimeoutRef.current = setTimeout(async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/products?search=${encodeURIComponent(searchQuery)}&limit=5`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setSearchResults(data.products || []);
+          setShowSearchDropdown(true);
+        }
+      } catch (error) {
+        console.error('Search error:', error);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [searchQuery]);
 
   const handleLogout = () => {
     logout();
@@ -50,6 +108,31 @@ export default function Navigation() {
 
   const isActive = (path: string) => {
     return pathname === path;
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+      setShowSearchDropdown(false);
+      setSearchQuery('');
+    }
+  };
+
+  const highlightMatch = (text: string, query: string) => {
+    if (!query.trim()) return text;
+    const regex = new RegExp(`(${query.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    const parts = text.split(regex);
+
+    return parts.map((part, i) =>
+      regex.test(part) ? (
+        <mark key={i} className="bg-ios-yellow-200 dark:bg-ios-yellow-700 text-gray-900 dark:text-white px-0.5 rounded">
+          {part}
+        </mark>
+      ) : (
+        part
+      )
+    );
   };
 
   return (
@@ -62,17 +145,94 @@ export default function Navigation() {
       border-b border-gray-200/50 dark:border-gray-700/50
     `}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
+        <div className="flex justify-between h-16 items-center gap-ios-md">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-ios-sm group">
+          <Link href="/" className="flex items-center gap-ios-sm group flex-shrink-0">
             <div className="w-10 h-10 bg-gradient-to-br from-ios-blue-500 to-ios-purple-500 rounded-ios-lg flex items-center justify-center shadow-ios-sm group-hover:shadow-ios transition-shadow">
               <span className="text-white font-bold text-xl">D</span>
             </div>
-            <span className="text-ios-headline font-bold text-gray-900 dark:text-white">DigitalDock</span>
+            <span className="hidden sm:block text-ios-headline font-bold text-gray-900 dark:text-white">DigitalDock</span>
           </Link>
 
+          {/* Global Search */}
+          <div className="hidden md:flex flex-1 max-w-xl relative" ref={searchRef}>
+            <form onSubmit={handleSearchSubmit} className="w-full">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => searchQuery.trim().length >= 2 && setShowSearchDropdown(true)}
+                  placeholder="Search products..."
+                  className="w-full pl-10 pr-4 py-2 rounded-ios-lg bg-ios-gray-100 dark:bg-ios-gray-800 border-2 border-transparent text-ios-body text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-ios-blue-500/50 focus:border-ios-blue-500 focus:bg-white dark:focus:bg-ios-gray-700 transition-all"
+                />
+                {isSearching && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <div className="w-4 h-4 border-2 border-ios-blue-500 border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
+              </div>
+            </form>
+
+            {/* Search Dropdown */}
+            {showSearchDropdown && searchResults.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white/95 dark:bg-gray-900/95 backdrop-blur-ios-md rounded-ios-xl shadow-ios-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden animate-ios-scale-in origin-top max-h-96 overflow-y-auto">
+                {searchResults.map((product) => (
+                  <Link
+                    key={product._id}
+                    href={`/product/${product._id}`}
+                    onClick={() => {
+                      setShowSearchDropdown(false);
+                      setSearchQuery('');
+                    }}
+                    className="flex items-start gap-ios-sm p-ios-sm hover:bg-ios-gray-100 dark:hover:bg-ios-gray-800 transition-colors border-b border-gray-200/50 dark:border-gray-700/50 last:border-0"
+                  >
+                    <div className="w-12 h-12 bg-gradient-to-br from-ios-blue-400 to-ios-purple-500 rounded-ios-md flex items-center justify-center flex-shrink-0 overflow-hidden">
+                      {product.coverImage ? (
+                        <img src={product.coverImage} alt={product.title} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-2xl">📦</span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-ios-footnote font-semibold text-gray-900 dark:text-white line-clamp-1">
+                        {highlightMatch(product.title, searchQuery)}
+                      </h4>
+                      <p className="text-ios-caption1 text-gray-600 dark:text-gray-400 line-clamp-1">
+                        {highlightMatch(product.description, searchQuery)}
+                      </p>
+                      <div className="flex items-center gap-ios-sm mt-ios-xs">
+                        <span className="text-ios-caption1 font-bold text-ios-blue-500">${product.price}</span>
+                        <span className="text-ios-caption2 text-gray-500 dark:text-gray-400">in {product.category}</span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+                <Link
+                  href={`/search?q=${encodeURIComponent(searchQuery)}`}
+                  onClick={() => {
+                    setShowSearchDropdown(false);
+                    setSearchQuery('');
+                  }}
+                  className="block p-ios-sm text-center text-ios-footnote font-semibold text-ios-blue-500 hover:bg-ios-gray-100 dark:hover:bg-ios-gray-800 transition-colors"
+                >
+                  View all results for "{searchQuery}"
+                </Link>
+              </div>
+            )}
+
+            {showSearchDropdown && searchResults.length === 0 && !isSearching && searchQuery.trim().length >= 2 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white/95 dark:bg-gray-900/95 backdrop-blur-ios-md rounded-ios-xl shadow-ios-lg border border-gray-200/50 dark:border-gray-700/50 p-ios-md text-center animate-ios-scale-in origin-top">
+                <p className="text-ios-footnote text-gray-600 dark:text-gray-400">
+                  No results found for "{searchQuery}"
+                </p>
+              </div>
+            )}
+          </div>
+
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-ios-lg">
+          <div className="hidden md:flex items-center gap-ios-md flex-shrink-0">
             <Link
               href="/"
               className={`
@@ -217,6 +377,22 @@ export default function Navigation() {
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
           <div className="md:hidden py-ios-md border-t border-gray-200/50 dark:border-gray-700/50 animate-ios-slide-down">
+            {/* Mobile Search */}
+            <div className="mb-ios-md">
+              <form onSubmit={handleSearchSubmit}>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search products..."
+                    className="w-full pl-10 pr-4 py-2 rounded-ios-lg bg-ios-gray-100 dark:bg-ios-gray-800 border-2 border-transparent text-ios-body text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-ios-blue-500/50 focus:border-ios-blue-500 transition-all"
+                  />
+                </div>
+              </form>
+            </div>
+
             <div className="flex flex-col gap-ios-xs">
               <Link
                 href="/"
