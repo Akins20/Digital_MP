@@ -6,174 +6,196 @@
  */
 
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { IOSCard, IOSButton, IOSBadge } from '@/components/ios';
+import { User, Mail, Shield, Crown, BadgeCheck, RefreshCw, Info, ShoppingBag, Package, Settings } from 'lucide-react';
 
 function DashboardContent() {
   const router = useRouter();
-  const { user, logout, refreshUser } = useAuth();
-
-  const handleLogout = () => {
-    logout();
-    router.push('/login');
-  };
+  const { user, refreshUser } = useAuth();
 
   const handleRefresh = async () => {
     try {
       await refreshUser();
-      alert('Profile refreshed successfully!');
-    } catch {
-      alert('Failed to refresh profile');
+    } catch (error) {
+      console.error('Failed to refresh profile', error);
     }
   };
 
+  const isSeller = user?.role === 'SELLER';
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Navigation Bar */}
-      <nav className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                DigitalDock
-              </h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                {user?.email}
-              </span>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-ios-gray-50 via-white to-ios-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-ios-blue-900/20 pt-16">
+      <main className="max-w-7xl mx-auto px-ios-md sm:px-ios-lg lg:px-ios-xl py-ios-xl">
+        {/* Welcome Section */}
+        <div className="mb-ios-xl animate-ios-fade-in">
+          <h1 className="text-ios-large-title font-bold text-gray-900 dark:text-white mb-ios-sm">
+            Welcome back{user?.name ? `, ${user.name}` : ''}!
+          </h1>
+          <p className="text-ios-body text-ios-gray-600 dark:text-ios-gray-400">
+            Manage your account and {isSeller ? 'track your sales' : 'view your purchases'}
+          </p>
         </div>
-      </nav>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="space-y-8">
-          {/* Welcome Section */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              Welcome back{user?.name ? `, ${user.name}` : ''}!
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-ios-lg mb-ios-xl">
+          <IOSCard blur hover padding="lg" className="animate-ios-scale-in">
+            <div className="flex items-center gap-ios-md">
+              <div className={`w-12 h-12 rounded-ios-xl flex items-center justify-center ${
+                isSeller
+                  ? 'bg-gradient-to-br from-ios-orange-500 to-ios-green-500'
+                  : 'bg-gradient-to-br from-ios-blue-500 to-ios-purple-500'
+              }`}>
+                {isSeller ? <Package className="w-6 h-6 text-white" /> : <ShoppingBag className="w-6 h-6 text-white" />}
+              </div>
+              <div>
+                <p className="text-ios-caption1 text-ios-gray-600 dark:text-ios-gray-400">Account Type</p>
+                <p className="text-ios-title3 font-semibold text-gray-900 dark:text-white">{user?.role}</p>
+              </div>
+            </div>
+          </IOSCard>
+
+          <Link href={isSeller ? '/seller/products' : '/dashboard/purchases'} className="block">
+            <IOSCard blur hover padding="lg" className="h-full animate-ios-scale-in" style={{ animationDelay: '50ms' }}>
+              <div className="flex items-center gap-ios-md">
+                <div className="w-12 h-12 bg-gradient-to-br from-ios-purple-500 to-ios-pink-500 rounded-ios-xl flex items-center justify-center">
+                  {isSeller ? <Package className="w-6 h-6 text-white" /> : <ShoppingBag className="w-6 h-6 text-white" />}
+                </div>
+                <div>
+                  <p className="text-ios-caption1 text-ios-gray-600 dark:text-ios-gray-400">
+                    {isSeller ? 'My Products' : 'My Purchases'}
+                  </p>
+                  <p className="text-ios-title3 font-semibold text-gray-900 dark:text-white">View All</p>
+                </div>
+              </div>
+            </IOSCard>
+          </Link>
+
+          <Link href="/dashboard/settings" className="block">
+            <IOSCard blur hover padding="lg" className="h-full animate-ios-scale-in" style={{ animationDelay: '100ms' }}>
+              <div className="flex items-center gap-ios-md">
+                <div className="w-12 h-12 bg-gradient-to-br from-ios-gray-500 to-ios-gray-600 rounded-ios-xl flex items-center justify-center">
+                  <Settings className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <p className="text-ios-caption1 text-ios-gray-600 dark:text-ios-gray-400">Settings</p>
+                  <p className="text-ios-title3 font-semibold text-gray-900 dark:text-white">Configure</p>
+                </div>
+              </div>
+            </IOSCard>
+          </Link>
+        </div>
+
+        {/* Profile Information */}
+        <IOSCard blur padding="lg" className="mb-ios-xl animate-ios-slide-up">
+          <div className="flex items-center justify-between mb-ios-lg">
+            <h2 className="text-ios-title2 font-bold text-gray-900 dark:text-white">
+              Profile Information
             </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              You&apos;re successfully logged in to your DigitalDock dashboard.
-            </p>
+            <IOSButton onClick={handleRefresh} variant="ghost" size="sm">
+              <RefreshCw className="w-4 h-4" />
+              Refresh
+            </IOSButton>
           </div>
 
-          {/* User Profile Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Profile Information
-              </h3>
-              <button
-                onClick={handleRefresh}
-                className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 border border-blue-600 dark:border-blue-400 rounded-lg transition"
-              >
-                Refresh Profile
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-ios-lg">
+            {/* User ID */}
+            <div className="flex items-start gap-ios-md">
+              <div className="w-10 h-10 bg-ios-gray-100 dark:bg-ios-gray-800 rounded-ios-lg flex items-center justify-center flex-shrink-0">
+                <User className="w-5 h-5 text-ios-gray-600 dark:text-ios-gray-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-ios-footnote font-semibold text-ios-gray-700 dark:text-ios-gray-300 mb-ios-xs">
                   User ID
-                </label>
-                <p className="text-gray-900 dark:text-white font-mono text-sm">
+                </p>
+                <p className="text-ios-caption1 text-ios-gray-600 dark:text-ios-gray-400 font-mono truncate">
                   {user?.id}
                 </p>
               </div>
+            </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+            {/* Email */}
+            <div className="flex items-start gap-ios-md">
+              <div className="w-10 h-10 bg-ios-gray-100 dark:bg-ios-gray-800 rounded-ios-lg flex items-center justify-center flex-shrink-0">
+                <Mail className="w-5 h-5 text-ios-gray-600 dark:text-ios-gray-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-ios-footnote font-semibold text-ios-gray-700 dark:text-ios-gray-300 mb-ios-xs">
                   Email
-                </label>
-                <p className="text-gray-900 dark:text-white">
+                </p>
+                <p className="text-ios-caption1 text-ios-gray-600 dark:text-ios-gray-400 truncate">
                   {user?.email}
                 </p>
               </div>
+            </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                  Name
-                </label>
-                <p className="text-gray-900 dark:text-white">
+            {/* Name */}
+            <div className="flex items-start gap-ios-md">
+              <div className="w-10 h-10 bg-ios-gray-100 dark:bg-ios-gray-800 rounded-ios-lg flex items-center justify-center flex-shrink-0">
+                <User className="w-5 h-5 text-ios-gray-600 dark:text-ios-gray-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-ios-footnote font-semibold text-ios-gray-700 dark:text-ios-gray-300 mb-ios-xs">
+                  Full Name
+                </p>
+                <p className="text-ios-caption1 text-ios-gray-600 dark:text-ios-gray-400">
                   {user?.name || 'Not set'}
                 </p>
               </div>
+            </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                  Account Type
-                </label>
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                  user?.role === 'SELLER'
-                    ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                    : user?.role === 'ADMIN'
-                    ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                    : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                }`}>
-                  {user?.role}
-                </span>
+            {/* Premium Status */}
+            <div className="flex items-start gap-ios-md">
+              <div className="w-10 h-10 bg-ios-gray-100 dark:bg-ios-gray-800 rounded-ios-lg flex items-center justify-center flex-shrink-0">
+                <Crown className="w-5 h-5 text-ios-gray-600 dark:text-ios-gray-400" />
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+              <div className="flex-1">
+                <p className="text-ios-footnote font-semibold text-ios-gray-700 dark:text-ios-gray-300 mb-ios-xs">
                   Premium Status
-                </label>
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                  user?.isPremium
-                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                    : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
-                }`}>
-                  {user?.isPremium ? 'Premium' : 'Free'}
-                </span>
-              </div>
-
-              {user?.role === 'SELLER' && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                    Verified Seller
-                  </label>
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                    user?.isVerifiedSeller
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                      : 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
-                  }`}>
-                    {user?.isVerifiedSeller ? 'Verified' : 'Not Verified'}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Session Info */}
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
-            <div className="flex items-start">
-              <div className="flex-shrink-0">
-                <svg className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <h4 className="text-sm font-medium text-blue-900 dark:text-blue-200">
-                  Session Information
-                </h4>
-                <p className="mt-1 text-sm text-blue-700 dark:text-blue-300">
-                  Your session is protected with cookie-based sliding sessions.
-                  The session will automatically extend every 5 minutes while you&apos;re active.
-                  Session expires 1 day after your last activity.
                 </p>
+                <IOSBadge variant={user?.isPremium ? 'warning' : 'secondary'}>
+                  {user?.isPremium ? 'Premium' : 'Free'}
+                </IOSBadge>
               </div>
             </div>
+
+            {/* Verified Seller (if seller) */}
+            {isSeller && (
+              <div className="flex items-start gap-ios-md">
+                <div className="w-10 h-10 bg-ios-gray-100 dark:bg-ios-gray-800 rounded-ios-lg flex items-center justify-center flex-shrink-0">
+                  <BadgeCheck className="w-5 h-5 text-ios-gray-600 dark:text-ios-gray-400" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-ios-footnote font-semibold text-ios-gray-700 dark:text-ios-gray-300 mb-ios-xs">
+                    Verification Status
+                  </p>
+                  <IOSBadge variant={user?.isVerifiedSeller ? 'success' : 'warning'}>
+                    {user?.isVerifiedSeller ? 'Verified' : 'Not Verified'}
+                  </IOSBadge>
+                </div>
+              </div>
+            )}
           </div>
-        </div>
+        </IOSCard>
+
+        {/* Session Info */}
+        <IOSCard blur padding="lg" className="bg-ios-blue-50/50 dark:bg-ios-blue-900/10 border border-ios-blue-200 dark:border-ios-blue-800 animate-ios-fade-in">
+          <div className="flex items-start gap-ios-md">
+            <div className="w-10 h-10 bg-ios-blue-100 dark:bg-ios-blue-900/30 rounded-ios-lg flex items-center justify-center flex-shrink-0">
+              <Info className="w-5 h-5 text-ios-blue-600 dark:text-ios-blue-400" />
+            </div>
+            <div className="flex-1">
+              <h4 className="text-ios-body font-semibold text-ios-blue-900 dark:text-ios-blue-200 mb-ios-xs">
+                Session Information
+              </h4>
+              <p className="text-ios-footnote text-ios-blue-700 dark:text-ios-blue-300 leading-relaxed">
+                Your session is protected with cookie-based sliding sessions. The session will automatically extend every 5 minutes while you&apos;re active. Session expires 1 day after your last activity.
+              </p>
+            </div>
+          </div>
+        </IOSCard>
       </main>
     </div>
   );

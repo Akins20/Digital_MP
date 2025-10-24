@@ -7,9 +7,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import * as productsApi from '@/lib/api/products';
+import { IOSCard, IOSButton, IOSBadge } from '@/components/ios';
+import { ShoppingBag, Package, BadgeCheck, Star, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
 
 export default function MarketplacePage() {
   const { user } = useAuth();
@@ -94,205 +95,192 @@ export default function MarketplacePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-ios-gray-50 via-white to-ios-purple-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-ios-purple-900/10 pt-16">
+      <main className="max-w-7xl mx-auto px-ios-md sm:px-ios-lg lg:px-ios-xl py-ios-xl">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Marketplace</h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Discover amazing digital products from talented sellers
+        <div className="mb-ios-xl animate-ios-fade-in">
+          <h1 className="text-ios-large-title font-bold text-gray-900 dark:text-white mb-ios-sm">Marketplace</h1>
+          <p className="text-ios-body text-ios-gray-600 dark:text-ios-gray-400">
+            Discover amazing digital products from talented creators worldwide
           </p>
         </div>
+
         {/* Filters */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            {/* Category Filter */}
-            <div className="flex flex-wrap gap-2">
-              {categories.map((category) => (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-ios-md mb-ios-lg">
+          {/* Category Tabs */}
+          <div className="flex flex-wrap gap-ios-xs">
+            {categories.slice(0, 6).map((category) => {
+              const isActive = (category.value === 'ALL' && !filters.category) || filters.category === category.value;
+              return (
                 <button
                   key={category.value}
                   onClick={() => handleCategoryChange(category.value as any)}
-                  className={`px-4 py-2 rounded-lg font-medium transition ${
-                    (category.value === 'ALL' && !filters.category) ||
-                    filters.category === category.value
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                  }`}
+                  className={`
+                    px-ios-md py-ios-sm rounded-ios-lg text-ios-footnote font-semibold
+                    transition-all duration-200
+                    ${isActive
+                      ? 'bg-ios-blue-500 text-white'
+                      : 'bg-white/50 dark:bg-ios-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-ios-gray-800'
+                    }
+                  `}
                 >
                   {category.label}
                 </button>
-              ))}
-            </div>
-
-            {/* Sort Filter */}
-            <select
-              onChange={(e) => handleSortChange(e.target.value)}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition"
-            >
-              <option value="createdAt-desc">Newest First</option>
-              <option value="createdAt-asc">Oldest First</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-              <option value="totalSales-desc">Most Popular</option>
-              <option value="averageRating-desc">Highest Rated</option>
-            </select>
+              );
+            })}
           </div>
+
+          {/* Sort */}
+          <select
+            onChange={(e) => handleSortChange(e.target.value)}
+            className="px-ios-md py-ios-sm rounded-ios-lg bg-white/50 dark:bg-ios-gray-800/50 backdrop-blur-ios border border-ios-gray-200 dark:border-ios-gray-700 text-ios-footnote text-gray-900 dark:text-white focus:outline-none focus:border-ios-blue-500 transition-all"
+          >
+            <option value="createdAt-desc">Newest</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="totalSales-desc">Popular</option>
+            <option value="averageRating-desc">Top Rated</option>
+          </select>
         </div>
 
         {/* Products Grid */}
         {isLoading ? (
-          <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
+          <div className="flex flex-col items-center justify-center py-ios-3xl">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-ios-blue-500 border-t-transparent"></div>
+            <p className="mt-ios-md text-ios-body text-ios-gray-600 dark:text-ios-gray-400">Loading products...</p>
           </div>
         ) : products.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-xl text-gray-600 dark:text-gray-400">No products found</p>
-          </div>
+          <IOSCard blur padding="lg" className="text-center py-ios-3xl">
+            <div className="max-w-md mx-auto">
+              <div className="w-20 h-20 bg-ios-gray-100 dark:bg-ios-gray-800 rounded-full flex items-center justify-center mx-auto mb-ios-lg">
+                <Package className="w-10 h-10 text-ios-gray-400" />
+              </div>
+              <p className="text-ios-title3 font-semibold text-gray-900 dark:text-white mb-ios-xs">No products found</p>
+              <p className="text-ios-subheadline text-ios-gray-600 dark:text-ios-gray-400">Try adjusting your filters to see more results</p>
+            </div>
+          </IOSCard>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.map((product) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-ios-lg">
+              {products.map((product, index) => (
                 <Link
                   key={product.id}
                   href={`/marketplace/${product.slug}`}
-                  className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition group"
+                  className="group"
+                  style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  {/* Product Image */}
-                  <div className="relative aspect-video bg-gray-200 dark:bg-gray-700">
-                    <img
-                      src={product.coverImage}
-                      alt={product.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                    />
-                    {product.discountPercentage > 0 && (
-                      <span className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
-                        -{product.discountPercentage}%
-                      </span>
-                    )}
-                    {product.featured && (
-                      <span className="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded">
-                        Featured
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Product Info */}
-                  <div className="p-4">
-                    <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-2 line-clamp-2">
-                      {product.title}
-                    </h3>
-
-                    {/* Seller Info */}
-                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-3">
-                      <span>by {product.seller.name || 'Anonymous'}</span>
-                      {product.seller.isVerifiedSeller && (
-                        <svg
-                          className="w-4 h-4 ml-1 text-blue-500"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      )}
+                  <IOSCard hover padding="none" className="h-full overflow-hidden">
+                    {/* Product Image */}
+                    <div className="relative aspect-video bg-ios-gray-100 dark:bg-ios-gray-800 overflow-hidden">
+                      <img
+                        src={product.coverImage}
+                        alt={product.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
                     </div>
 
-                    {/* Rating */}
-                    {product.totalReviews > 0 && (
-                      <div className="flex items-center mb-3">
-                        <div className="flex text-yellow-400">
-                          {[...Array(5)].map((_, i) => (
-                            <svg
-                              key={i}
-                              className={`w-4 h-4 ${
-                                i < Math.round(product.averageRating) ? 'fill-current' : 'fill-gray-300 dark:fill-gray-600'
-                              }`}
-                              viewBox="0 0 20 20"
-                            >
-                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                          ))}
-                        </div>
-                        <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                          ({product.totalReviews})
+                    {/* Product Info */}
+                    <div className="p-ios-md">
+                      {/* Seller */}
+                      <div className="flex items-center gap-ios-xs mb-ios-xs">
+                        <span className="text-ios-caption1 text-ios-gray-600 dark:text-ios-gray-400">
+                          {product.seller.name || 'Anonymous'}
+                        </span>
+                        {product.seller.isVerifiedSeller && (
+                          <BadgeCheck className="w-3 h-3 text-ios-blue-500 fill-current" />
+                        )}
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="text-ios-body font-medium text-gray-900 dark:text-white mb-ios-sm line-clamp-2">
+                        {product.title}
+                      </h3>
+
+                      {/* Rating & Price */}
+                      <div className="flex items-center justify-between">
+                        {product.totalReviews > 0 ? (
+                          <div className="flex items-center gap-ios-xs">
+                            <Star className="w-3.5 h-3.5 text-ios-orange-500 fill-current" />
+                            <span className="text-ios-footnote font-semibold text-gray-900 dark:text-white">
+                              {product.averageRating.toFixed(1)}
+                            </span>
+                            <span className="text-ios-caption2 text-ios-gray-500">
+                              ({product.totalReviews})
+                            </span>
+                          </div>
+                        ) : (
+                          <div />
+                        )}
+                        <span className="text-ios-body font-bold text-gray-900 dark:text-white">
+                          {formatPrice(product.price, product.currency)}
                         </span>
                       </div>
-                    )}
-
-                    {/* Price */}
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {formatPrice(product.price, product.currency)}
-                      </span>
-                      {product.originalPrice && product.originalPrice > product.price && (
-                        <span className="text-sm text-gray-500 dark:text-gray-400 line-through">
-                          {formatPrice(product.originalPrice, product.currency)}
-                        </span>
-                      )}
                     </div>
-
-                    {/* Sales Count */}
-                    {product.totalSales > 0 && (
-                      <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                        {product.totalSales} sales
-                      </p>
-                    )}
-                  </div>
+                  </IOSCard>
                 </Link>
               ))}
             </div>
 
             {/* Pagination */}
             {pagination.pages > 1 && (
-              <div className="mt-12 flex justify-center gap-2">
-                <button
-                  onClick={() => handlePageChange(pagination.page - 1)}
-                  disabled={pagination.page === 1}
-                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 transition"
-                >
-                  Previous
-                </button>
+              <div className="mt-ios-3xl">
+                <IOSCard blur padding="md" className="inline-flex items-center gap-ios-xs mx-auto">
+                  <IOSButton
+                    onClick={() => handlePageChange(pagination.page - 1)}
+                    disabled={pagination.page === 1}
+                    variant="ghost"
+                    size="sm"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    Previous
+                  </IOSButton>
 
-                {[...Array(pagination.pages)].map((_, i) => {
-                  const page = i + 1;
-                  if (
-                    page === 1 ||
-                    page === pagination.pages ||
-                    (page >= pagination.page - 1 && page <= pagination.page + 1)
-                  ) {
-                    return (
-                      <button
-                        key={page}
-                        onClick={() => handlePageChange(page)}
-                        className={`px-4 py-2 border rounded-lg transition ${
-                          page === pagination.page
-                            ? 'bg-blue-600 text-white border-blue-600'
-                            : 'border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
-                        }`}
-                      >
-                        {page}
-                      </button>
-                    );
-                  } else if (page === pagination.page - 2 || page === pagination.page + 2) {
-                    return (
-                      <span key={page} className="px-2 py-2">
-                        ...
-                      </span>
-                    );
-                  }
-                  return null;
-                })}
+                  <div className="flex items-center gap-ios-xs">
+                    {[...Array(pagination.pages)].map((_, i) => {
+                      const page = i + 1;
+                      if (
+                        page === 1 ||
+                        page === pagination.pages ||
+                        (page >= pagination.page - 1 && page <= pagination.page + 1)
+                      ) {
+                        return (
+                          <button
+                            key={page}
+                            onClick={() => handlePageChange(page)}
+                            className={`
+                              min-w-[2.5rem] h-10 rounded-ios-lg text-ios-body font-semibold
+                              transition-all duration-200 active:scale-95
+                              ${
+                                page === pagination.page
+                                  ? 'bg-ios-blue-500 text-white shadow-ios-sm'
+                                  : 'bg-ios-gray-100 dark:bg-ios-gray-800 text-ios-gray-700 dark:text-ios-gray-300 hover:bg-ios-gray-200 dark:hover:bg-ios-gray-700'
+                              }
+                            `}
+                          >
+                            {page}
+                          </button>
+                        );
+                      } else if (page === pagination.page - 2 || page === pagination.page + 2) {
+                        return (
+                          <span key={page} className="px-ios-xs text-ios-gray-400">
+                            •••
+                          </span>
+                        );
+                      }
+                      return null;
+                    })}
+                  </div>
 
-                <button
-                  onClick={() => handlePageChange(pagination.page + 1)}
-                  disabled={pagination.page === pagination.pages}
-                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 transition"
-                >
-                  Next
-                </button>
+                  <IOSButton
+                    onClick={() => handlePageChange(pagination.page + 1)}
+                    disabled={pagination.page === pagination.pages}
+                    variant="ghost"
+                    size="sm"
+                  >
+                    Next
+                    <ChevronRight className="w-4 h-4" />
+                  </IOSButton>
+                </IOSCard>
               </div>
             )}
           </>

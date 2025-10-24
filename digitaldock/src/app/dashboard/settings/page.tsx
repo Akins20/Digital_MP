@@ -13,6 +13,8 @@ import { useNotification } from '@/contexts/NotificationContext';
 import * as usersApi from '@/lib/api/users';
 import * as uploadApi from '@/lib/api/upload';
 import FileUpload from '@/components/FileUpload';
+import { IOSCard, IOSButton, IOSInput, IOSBadge } from '@/components/ios';
+import { User, Mail, Lock, BadgeCheck, ShoppingBag, Package, DollarSign, LayoutGrid, AlertTriangle, Upload } from 'lucide-react';
 
 export default function ProfileSettingsPage() {
   const router = useRouter();
@@ -182,380 +184,412 @@ export default function ProfileSettingsPage() {
 
   if (authLoading || isLoading || !profile) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-ios-gray-50 via-white to-ios-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-ios-blue-900/20 flex items-center justify-center pt-16">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-ios-blue-500 border-t-transparent"></div>
+          <p className="mt-ios-md text-ios-body text-ios-gray-600 dark:text-ios-gray-400">Loading settings...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-ios-gray-50 via-white to-ios-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-ios-blue-900/20 pt-16">
+      <main className="max-w-6xl mx-auto px-ios-md sm:px-ios-lg lg:px-ios-xl py-ios-xl">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Profile Settings</h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
+        <div className="mb-ios-xl animate-ios-fade-in">
+          <h1 className="text-ios-large-title font-bold text-gray-900 dark:text-white mb-ios-sm">Profile Settings</h1>
+          <p className="text-ios-body text-ios-gray-600 dark:text-ios-gray-400">
             Manage your account settings and preferences
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-ios-lg">
           {/* Stats Sidebar */}
-          <div className="lg:col-span-1 space-y-4">
+          <div className="lg:col-span-1 space-y-ios-lg">
             {/* Profile Stats */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            <IOSCard blur padding="lg" className="animate-ios-scale-in">
+              <h3 className="text-ios-title3 font-semibold text-gray-900 dark:text-white mb-ios-lg">
                 Your Stats
               </h3>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Total Purchases</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {profile.stats.totalPurchases}
-                  </p>
+              <div className="space-y-ios-lg">
+                <div className="flex items-center gap-ios-md">
+                  <div className="w-12 h-12 bg-gradient-to-br from-ios-blue-500 to-ios-purple-500 rounded-ios-xl flex items-center justify-center">
+                    <ShoppingBag className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-ios-caption1 text-ios-gray-600 dark:text-ios-gray-400">Total Purchases</p>
+                    <p className="text-ios-title2 font-bold text-gray-900 dark:text-white">
+                      {profile.stats?.totalPurchases || 0}
+                    </p>
+                  </div>
                 </div>
                 {user?.role === 'SELLER' && (
                   <>
-                    <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Total Sales</p>
-                      <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                        {profile.stats.totalSales}
-                      </p>
+                    <div className="flex items-center gap-ios-md pt-ios-lg border-t border-ios-gray-200 dark:border-ios-gray-700">
+                      <div className="w-12 h-12 bg-gradient-to-br from-ios-green-500 to-ios-teal-500 rounded-ios-xl flex items-center justify-center">
+                        <Package className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-ios-caption1 text-ios-gray-600 dark:text-ios-gray-400">Total Sales</p>
+                        <p className="text-ios-title2 font-bold text-ios-green-600 dark:text-ios-green-400">
+                          {profile.stats?.totalSales || 0}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Total Revenue</p>
-                      <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                        ${profile.stats.totalRevenue.toFixed(2)}
-                      </p>
+                    <div className="flex items-center gap-ios-md">
+                      <div className="w-12 h-12 bg-gradient-to-br from-ios-blue-500 to-ios-blue-600 rounded-ios-xl flex items-center justify-center">
+                        <DollarSign className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-ios-caption1 text-ios-gray-600 dark:text-ios-gray-400">Total Revenue</p>
+                        <p className="text-ios-title2 font-bold text-ios-blue-600 dark:text-ios-blue-400">
+                          ${(profile.stats?.totalRevenue || 0).toFixed(2)}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Products Listed</p>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {profile.stats.totalProducts}
-                      </p>
+                    <div className="flex items-center gap-ios-md">
+                      <div className="w-12 h-12 bg-gradient-to-br from-ios-purple-500 to-ios-pink-500 rounded-ios-xl flex items-center justify-center">
+                        <Package className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-ios-caption1 text-ios-gray-600 dark:text-ios-gray-400">Products Listed</p>
+                        <p className="text-ios-title2 font-bold text-gray-900 dark:text-white">
+                          {profile.stats?.totalProducts || 0}
+                        </p>
+                      </div>
                     </div>
                   </>
                 )}
               </div>
-            </div>
+            </IOSCard>
 
             {/* Quick Links */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            <IOSCard blur padding="lg" className="animate-ios-scale-in" style={{ animationDelay: '50ms' }}>
+              <h3 className="text-ios-title3 font-semibold text-gray-900 dark:text-white mb-ios-md">
                 Quick Links
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-ios-xs">
                 <Link
                   href="/dashboard"
-                  className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded transition"
+                  className="flex items-center gap-ios-sm px-ios-md py-ios-sm text-ios-footnote text-ios-gray-700 dark:text-ios-gray-300 hover:bg-ios-gray-100 dark:hover:bg-ios-gray-800 rounded-ios-lg transition-all active:scale-98"
                 >
+                  <LayoutGrid className="w-4 h-4" />
                   Dashboard
                 </Link>
                 <Link
                   href="/dashboard/purchases"
-                  className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded transition"
+                  className="flex items-center gap-ios-sm px-ios-md py-ios-sm text-ios-footnote text-ios-gray-700 dark:text-ios-gray-300 hover:bg-ios-gray-100 dark:hover:bg-ios-gray-800 rounded-ios-lg transition-all active:scale-98"
                 >
+                  <ShoppingBag className="w-4 h-4" />
                   My Purchases
                 </Link>
                 {user?.role === 'SELLER' && (
                   <>
                     <Link
                       href="/seller/products"
-                      className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded transition"
+                      className="flex items-center gap-ios-sm px-ios-md py-ios-sm text-ios-footnote text-ios-gray-700 dark:text-ios-gray-300 hover:bg-ios-gray-100 dark:hover:bg-ios-gray-800 rounded-ios-lg transition-all active:scale-98"
                     >
+                      <Package className="w-4 h-4" />
                       My Products
                     </Link>
                     <Link
                       href="/seller/sales"
-                      className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded transition"
+                      className="flex items-center gap-ios-sm px-ios-md py-ios-sm text-ios-footnote text-ios-gray-700 dark:text-ios-gray-300 hover:bg-ios-gray-100 dark:hover:bg-ios-gray-800 rounded-ios-lg transition-all active:scale-98"
                     >
+                      <DollarSign className="w-4 h-4" />
                       Sales Dashboard
                     </Link>
                   </>
                 )}
               </div>
-            </div>
+            </IOSCard>
           </div>
 
           {/* Main Settings */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-ios-lg">
             {/* Profile Information */}
-            <form onSubmit={handleUpdateProfile} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                Profile Information
-              </h2>
+            <form onSubmit={handleUpdateProfile}>
+              <IOSCard blur padding="lg" className="animate-ios-slide-up">
+                <h2 className="text-ios-title2 font-bold text-gray-900 dark:text-white mb-ios-lg">
+                  Profile Information
+                </h2>
 
-              <div className="space-y-4">
-                {/* Avatar */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Profile Picture
-                  </label>
-                  <div className="flex items-center gap-4">
-                    {profileForm.avatar ? (
-                      <img
-                        src={profileForm.avatar}
-                        alt="Avatar"
-                        className="w-20 h-20 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700"
-                      />
-                    ) : (
-                      <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                        <svg className="w-10 h-10 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                    )}
-                    <div className="flex-1">
-                      <FileUpload
-                        accept="image/*"
-                        multiple={false}
-                        maxSizeMB={2}
-                        maxFiles={1}
-                        onFilesSelected={handleAvatarUpload}
-                        disabled={isUploadingAvatar}
-                        helperText="Upload a profile picture (max 2MB)"
-                      />
-                      {isUploadingAvatar && (
-                        <p className="mt-1 text-sm text-blue-600 dark:text-blue-400">Uploading...</p>
+                <div className="space-y-ios-lg">
+                  {/* Avatar */}
+                  <div>
+                    <label className="block text-ios-footnote font-semibold text-ios-gray-700 dark:text-ios-gray-300 mb-ios-sm">
+                      Profile Picture
+                    </label>
+                    <div className="flex items-center gap-ios-md">
+                      {profileForm.avatar ? (
+                        <img
+                          src={profileForm.avatar}
+                          alt="Avatar"
+                          className="w-20 h-20 rounded-full object-cover border-2 border-ios-gray-200 dark:border-ios-gray-700 shadow-ios-sm"
+                        />
+                      ) : (
+                        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-ios-blue-500 to-ios-purple-500 flex items-center justify-center shadow-ios-sm">
+                          <User className="w-10 h-10 text-white" />
+                        </div>
                       )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Email (read-only) */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    value={profile.user.email}
-                    disabled
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
-                  />
-                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    Email cannot be changed
-                  </p>
-                </div>
-
-                {/* Name */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Display Name
-                  </label>
-                  <input
-                    type="text"
-                    value={profileForm.name}
-                    onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
-                    maxLength={100}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                    placeholder="Your name"
-                  />
-                </div>
-
-                {/* Bio */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Bio
-                  </label>
-                  <textarea
-                    value={profileForm.bio}
-                    onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
-                    maxLength={500}
-                    rows={4}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                    placeholder="Tell us about yourself"
-                  />
-                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    {profileForm.bio.length} / 500 characters
-                  </p>
-                </div>
-
-                {/* Role & Seller Info */}
-                {user?.role === 'SELLER' && (
-                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
                       <div className="flex-1">
-                        <p className="font-semibold text-blue-900 dark:text-blue-100">Seller Account</p>
-                        <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                          Seller Slug: <span className="font-mono">{profile.user.sellerSlug}</span>
-                        </p>
-                        {profile.user.isVerifiedSeller && (
-                          <p className="text-sm text-green-700 dark:text-green-300 mt-1">
-                            ✓ Verified Seller
+                        <FileUpload
+                          accept="image/*"
+                          multiple={false}
+                          maxSizeMB={2}
+                          maxFiles={1}
+                          onFilesSelected={handleAvatarUpload}
+                          disabled={isUploadingAvatar}
+                          helperText="Upload a profile picture (max 2MB)"
+                        />
+                        {isUploadingAvatar && (
+                          <p className="mt-ios-xs text-ios-footnote text-ios-blue-600 dark:text-ios-blue-400">
+                            <Upload className="w-4 h-4 inline mr-1 animate-bounce" />
+                            Uploading...
                           </p>
                         )}
                       </div>
                     </div>
                   </div>
-                )}
 
-                {/* Save Button */}
-                <div className="flex justify-end">
-                  <button
-                    type="submit"
-                    disabled={isSavingProfile}
-                    className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition disabled:opacity-50"
-                  >
-                    {isSavingProfile ? 'Saving...' : 'Save Changes'}
-                  </button>
+                  {/* Email (read-only) */}
+                  <div>
+                    <IOSInput
+                      label="Email"
+                      type="email"
+                      value={profile.user.email}
+                      disabled
+                      leftIcon={<Mail className="w-5 h-5" />}
+                      helperText="Email cannot be changed"
+                    />
+                  </div>
+
+                  {/* Name */}
+                  <div>
+                    <IOSInput
+                      label="Display Name"
+                      type="text"
+                      value={profileForm.name}
+                      onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                      maxLength={100}
+                      placeholder="Your name"
+                      leftIcon={<User className="w-5 h-5" />}
+                    />
+                  </div>
+
+                  {/* Bio */}
+                  <div>
+                    <label className="block text-ios-footnote font-medium text-ios-gray-700 dark:text-ios-gray-300 mb-ios-xs">
+                      Bio
+                    </label>
+                    <textarea
+                      value={profileForm.bio}
+                      onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
+                      maxLength={500}
+                      rows={4}
+                      className="w-full px-ios-md py-ios-sm text-ios-body bg-ios-gray-50 dark:bg-ios-gray-800 border-2 border-transparent rounded-ios-lg focus:outline-none focus:ring-2 focus:ring-ios-blue-500/50 focus:border-ios-blue-500 transition-all duration-200 placeholder:text-ios-gray-400"
+                      placeholder="Tell us about yourself"
+                    />
+                    <p className="mt-ios-xs text-ios-caption1 text-ios-gray-500 dark:text-ios-gray-400">
+                      {profileForm.bio.length} / 500 characters
+                    </p>
+                  </div>
+
+                  {/* Role & Seller Info */}
+                  {user?.role === 'SELLER' && (
+                    <div className="p-ios-md bg-ios-blue-50 dark:bg-ios-blue-900/20 border border-ios-blue-200 dark:border-ios-blue-800 rounded-ios-lg">
+                      <div className="flex items-start gap-ios-sm">
+                        <BadgeCheck className="w-6 h-6 text-ios-blue-600 dark:text-ios-blue-400 flex-shrink-0" />
+                        <div className="flex-1">
+                          <p className="text-ios-body font-semibold text-ios-blue-900 dark:text-ios-blue-100">Seller Account</p>
+                          <p className="text-ios-footnote text-ios-blue-700 dark:text-ios-blue-300 mt-ios-xs">
+                            Seller Slug: <span className="font-mono">{profile.user.sellerSlug}</span>
+                          </p>
+                          {profile.user.isVerifiedSeller && (
+                            <div className="flex items-center gap-ios-xs mt-ios-xs">
+                              <IOSBadge variant="success">Verified Seller</IOSBadge>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Save Button */}
+                  <div className="flex justify-end pt-ios-md">
+                    <IOSButton
+                      type="submit"
+                      disabled={isSavingProfile}
+                      variant="primary"
+                      size="lg"
+                      loading={isSavingProfile}
+                    >
+                      {isSavingProfile ? 'Saving...' : 'Save Changes'}
+                    </IOSButton>
+                  </div>
                 </div>
-              </div>
+              </IOSCard>
             </form>
 
             {/* Change Password */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                Security
-              </h2>
+            <IOSCard blur padding="lg" className="animate-ios-slide-up" style={{ animationDelay: '50ms' }}>
+              <div className="flex items-center gap-ios-sm mb-ios-lg">
+                <Lock className="w-5 h-5 text-ios-blue-500" />
+                <h2 className="text-ios-title2 font-bold text-gray-900 dark:text-white">
+                  Security
+                </h2>
+              </div>
 
               {!showPasswordForm ? (
-                <button
+                <IOSButton
                   onClick={() => setShowPasswordForm(true)}
-                  className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg transition"
+                  variant="secondary"
+                  size="md"
                 >
+                  <Lock className="w-4 h-4" />
                   Change Password
-                </button>
+                </IOSButton>
               ) : (
-                <form onSubmit={handleChangePassword} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Current Password
-                    </label>
-                    <input
-                      type="password"
-                      value={passwordForm.currentPassword}
-                      onChange={(e) =>
-                        setPasswordForm({ ...passwordForm, currentPassword: e.target.value })
-                      }
-                      required
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
+                <form onSubmit={handleChangePassword} className="space-y-ios-md">
+                  <IOSInput
+                    label="Current Password"
+                    type="password"
+                    value={passwordForm.currentPassword}
+                    onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                    required
+                    leftIcon={<Lock className="w-5 h-5" />}
+                    showPasswordToggle
+                  />
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      New Password
-                    </label>
-                    <input
-                      type="password"
-                      value={passwordForm.newPassword}
-                      onChange={(e) =>
-                        setPasswordForm({ ...passwordForm, newPassword: e.target.value })
-                      }
-                      required
-                      minLength={6}
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
+                  <IOSInput
+                    label="New Password"
+                    type="password"
+                    value={passwordForm.newPassword}
+                    onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                    required
+                    minLength={6}
+                    leftIcon={<Lock className="w-5 h-5" />}
+                    showPasswordToggle
+                  />
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Confirm New Password
-                    </label>
-                    <input
-                      type="password"
-                      value={passwordForm.confirmPassword}
-                      onChange={(e) =>
-                        setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })
-                      }
-                      required
-                      minLength={6}
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
+                  <IOSInput
+                    label="Confirm New Password"
+                    type="password"
+                    value={passwordForm.confirmPassword}
+                    onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                    required
+                    minLength={6}
+                    leftIcon={<Lock className="w-5 h-5" />}
+                    showPasswordToggle
+                  />
 
-                  <div className="flex gap-3">
-                    <button
+                  <div className="flex gap-ios-sm pt-ios-md">
+                    <IOSButton
                       type="submit"
                       disabled={isSavingPassword}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition disabled:opacity-50"
+                      variant="primary"
+                      size="md"
+                      loading={isSavingPassword}
+                      className="flex-1"
                     >
                       {isSavingPassword ? 'Changing...' : 'Change Password'}
-                    </button>
-                    <button
+                    </IOSButton>
+                    <IOSButton
                       type="button"
                       onClick={() => {
                         setShowPasswordForm(false);
                         setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
                       }}
-                      className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg transition"
+                      variant="ghost"
+                      size="md"
+                      className="flex-1"
                     >
                       Cancel
-                    </button>
+                    </IOSButton>
                   </div>
                 </form>
               )}
-            </div>
+            </IOSCard>
 
             {/* Upgrade to Seller */}
             {user?.role === 'BUYER' && (
-              <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg shadow-sm p-6 text-white">
-                <h2 className="text-xl font-semibold mb-2">Become a Seller</h2>
-                <p className="text-blue-100 mb-4">
-                  Start selling your digital products and reach thousands of buyers
-                </p>
-                <Link
-                  href="/dashboard/upgrade-to-seller"
-                  className="inline-block px-6 py-2 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition"
-                >
-                  Upgrade Now
-                </Link>
-              </div>
+              <IOSCard padding="lg" className="bg-gradient-to-br from-ios-blue-500 to-ios-purple-600 border-0 animate-ios-scale-in" style={{ animationDelay: '100ms' }}>
+                <div className="text-white">
+                  <h2 className="text-ios-title2 font-bold mb-ios-sm">Become a Seller</h2>
+                  <p className="text-ios-body text-white/90 mb-ios-lg">
+                    Start selling your digital products and reach thousands of buyers
+                  </p>
+                  <Link href="/dashboard/upgrade-to-seller">
+                    <IOSButton variant="secondary" size="lg">
+                      <Package className="w-4 h-4" />
+                      Upgrade Now
+                    </IOSButton>
+                  </Link>
+                </div>
+              </IOSCard>
             )}
 
             {/* Danger Zone */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-red-200 dark:border-red-900 p-6">
-              <h2 className="text-xl font-semibold text-red-600 dark:text-red-400 mb-4">
-                Danger Zone
-              </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            <IOSCard blur padding="lg" className="border-2 border-ios-red-200 dark:border-ios-red-800 animate-ios-slide-up" style={{ animationDelay: '150ms' }}>
+              <div className="flex items-center gap-ios-sm mb-ios-lg">
+                <AlertTriangle className="w-5 h-5 text-ios-red-500" />
+                <h2 className="text-ios-title2 font-bold text-ios-red-600 dark:text-ios-red-400">
+                  Danger Zone
+                </h2>
+              </div>
+              <p className="text-ios-footnote text-ios-gray-600 dark:text-ios-gray-400 mb-ios-lg">
                 Once you delete your account, there is no going back. Please be certain.
               </p>
 
               {!showDeleteConfirm ? (
-                <button
+                <IOSButton
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition"
+                  variant="danger"
+                  size="md"
                 >
+                  <AlertTriangle className="w-4 h-4" />
                   Delete Account
-                </button>
+                </IOSButton>
               ) : (
-                <div className="space-y-3">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                <div className="space-y-ios-md">
+                  <p className="text-ios-footnote font-semibold text-gray-900 dark:text-white">
                     Enter your password to confirm account deletion:
                   </p>
-                  <input
+                  <IOSInput
                     type="password"
                     value={deletePassword}
                     onChange={(e) => setDeletePassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500"
+                    leftIcon={<Lock className="w-5 h-5" />}
+                    showPasswordToggle
                   />
-                  <div className="flex gap-3">
-                    <button
+                  <div className="flex gap-ios-sm">
+                    <IOSButton
                       onClick={handleDeleteAccount}
                       disabled={isDeleting || !deletePassword}
-                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition disabled:opacity-50"
+                      variant="danger"
+                      size="md"
+                      loading={isDeleting}
+                      className="flex-1"
                     >
                       {isDeleting ? 'Deleting...' : 'Confirm Delete'}
-                    </button>
-                    <button
+                    </IOSButton>
+                    <IOSButton
                       onClick={() => {
                         setShowDeleteConfirm(false);
                         setDeletePassword('');
                       }}
-                      className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg transition"
+                      variant="ghost"
+                      size="md"
+                      className="flex-1"
                     >
                       Cancel
-                    </button>
+                    </IOSButton>
                   </div>
                 </div>
               )}
-            </div>
+            </IOSCard>
           </div>
         </div>
       </main>

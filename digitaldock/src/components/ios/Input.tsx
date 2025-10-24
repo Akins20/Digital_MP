@@ -3,7 +3,8 @@
  * Rounded inputs with iOS styling
  */
 
-import { InputHTMLAttributes, forwardRef } from 'react';
+import { InputHTMLAttributes, forwardRef, useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface IOSInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -11,10 +12,17 @@ interface IOSInputProps extends InputHTMLAttributes<HTMLInputElement> {
   helperText?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  showPasswordToggle?: boolean;
 }
 
 const IOSInput = forwardRef<HTMLInputElement, IOSInputProps>(
-  ({ label, error, helperText, leftIcon, rightIcon, className = '', ...props }, ref) => {
+  ({ label, error, helperText, leftIcon, rightIcon, showPasswordToggle, className = '', type, ...props }, ref) => {
+    const [showPassword, setShowPassword] = useState(false);
+
+    // Determine if we should show the password toggle
+    const isPasswordInput = type === 'password' && showPasswordToggle;
+    const inputType = isPasswordInput && showPassword ? 'text' : type;
+
     return (
       <div className="w-full">
         {label && (
@@ -30,10 +38,11 @@ const IOSInput = forwardRef<HTMLInputElement, IOSInputProps>(
           )}
           <input
             ref={ref}
+            type={inputType}
             className={`
               w-full px-ios-md py-ios
               ${leftIcon ? 'pl-10' : ''}
-              ${rightIcon ? 'pr-10' : ''}
+              ${rightIcon || isPasswordInput ? 'pr-10' : ''}
               text-ios-body
               bg-ios-gray-50 dark:bg-ios-gray-800
               border-2 ${error ? 'border-ios-red-500' : 'border-transparent'}
@@ -46,7 +55,20 @@ const IOSInput = forwardRef<HTMLInputElement, IOSInputProps>(
             `}
             {...props}
           />
-          {rightIcon && (
+          {isPasswordInput && (
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-ios-sm top-1/2 -translate-y-1/2 text-ios-gray-400 hover:text-ios-gray-600 dark:hover:text-ios-gray-300 transition-colors active:scale-95"
+            >
+              {showPassword ? (
+                <EyeOff className="w-5 h-5" />
+              ) : (
+                <Eye className="w-5 h-5" />
+              )}
+            </button>
+          )}
+          {rightIcon && !isPasswordInput && (
             <div className="absolute right-ios-sm top-1/2 -translate-y-1/2 text-ios-gray-400">
               {rightIcon}
             </div>

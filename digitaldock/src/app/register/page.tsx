@@ -9,11 +9,14 @@ import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import { IOSCard, IOSButton, IOSInput } from '@/components/ios';
+import { Mail, Lock, User as UserIcon, ShoppingBag, Package } from 'lucide-react';
 
 export default function RegisterPage() {
   const router = useRouter();
   const { register, isLoading } = useAuth();
 
+  const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -33,22 +36,45 @@ export default function RegisterPage() {
     hasNumber: false,
   });
 
+  const handleNextStep = () => {
+    setError(null);
+
+    // Step 1: Just move forward (role selection)
+    if (currentStep === 1) {
+      setCurrentStep(2);
+      return;
+    }
+
+    // Step 2: Validate email and password
+    if (currentStep === 2) {
+      if (!formData.email || !formData.password || !formData.confirmPassword) {
+        setError('Please fill in all fields');
+        return;
+      }
+
+      if (formData.password !== formData.confirmPassword) {
+        setError('Passwords do not match');
+        return;
+      }
+
+      if (!passwordStrength.hasMinLength || !passwordStrength.hasUppercase || !passwordStrength.hasNumber) {
+        setError('Password does not meet strength requirements');
+        return;
+      }
+
+      setCurrentStep(3);
+      return;
+    }
+  };
+
+  const handlePrevStep = () => {
+    setError(null);
+    setCurrentStep(currentStep - 1);
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
-
-    // Validate passwords match
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    // Validate password strength
-    if (!passwordStrength.hasMinLength || !passwordStrength.hasUppercase || !passwordStrength.hasNumber) {
-      setError('Password does not meet strength requirements');
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
@@ -93,220 +119,260 @@ export default function RegisterPage() {
     );
   }
 
+  // Dynamic theming based on role
+  const isBuyer = formData.role === 'BUYER';
+  const bgGradient = isBuyer
+    ? 'from-ios-blue-50 via-white to-ios-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-ios-blue-900/20'
+    : 'from-ios-orange-50 via-white to-ios-green-50 dark:from-gray-900 dark:via-gray-900 dark:to-ios-green-900/20';
+  const accentColor = isBuyer ? 'ios-blue' : 'ios-orange';
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 px-4 py-12">
-      <div className="max-w-md w-full space-y-8">
+    <div className={`min-h-screen flex items-center justify-center bg-gradient-to-br ${bgGradient} px-ios-md pt-16 py-ios-xl transition-all duration-500`}>
+      <div className="max-w-md w-full">
         {/* Header */}
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            Join DigitalDock
+        <div className="text-center mb-ios-xl animate-ios-fade-in">
+          <h1 className="text-ios-large-title font-bold text-gray-900 dark:text-white mb-ios-sm">
+            {currentStep === 1 ? 'Join DigitalDock' : currentStep === 2 ? 'Create Your Account' : `Welcome ${isBuyer ? 'Buyer' : 'Seller'}!`}
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Create your account and start selling digital products
+          <p className="text-ios-body text-ios-gray-600 dark:text-ios-gray-400">
+            {currentStep === 1
+              ? 'Choose how you want to get started'
+              : currentStep === 2
+              ? 'Set up your secure login credentials'
+              : isBuyer
+              ? 'Find amazing digital products'
+              : 'Start selling your digital creations'
+            }
           </p>
+
+          {/* Progress Indicator */}
+          <div className="flex justify-center gap-ios-xs mt-ios-lg">
+            {[1, 2, 3].map((step) => (
+              <div
+                key={step}
+                className={`h-1 rounded-full transition-all duration-300 ${
+                  step === currentStep
+                    ? `w-8 bg-${accentColor}-500`
+                    : step < currentStep
+                    ? `w-6 bg-${accentColor}-400`
+                    : 'w-6 bg-ios-gray-200 dark:bg-ios-gray-700'
+                }`}
+              />
+            ))}
+          </div>
         </div>
 
-        {/* Register Form */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Error Message */}
-            {error && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
-                {error}
-              </div>
-            )}
-
-            {/* Name Field */}
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Full Name (Optional)
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition"
-                placeholder="John Doe"
-              />
+        {/* Form Card */}
+        <IOSCard blur padding="lg" className="animate-ios-scale-in">
+          {/* Error Message */}
+          {error && (
+            <div className="bg-ios-red-50 dark:bg-ios-red-900/20 border border-ios-red-200 dark:border-ios-red-800 text-ios-red-600 dark:text-ios-red-400 px-ios-md py-ios-sm rounded-ios-lg text-ios-footnote mb-ios-md">
+              {error}
             </div>
+          )}
 
-            {/* Email Field */}
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Email Address
-              </label>
-              <input
-                id="email"
-                name="email"
+          {/* STEP 1: Role Selection */}
+          {currentStep === 1 && (
+            <div className="space-y-ios-lg animate-ios-fade-in">
+              <div className="space-y-ios-md">
+                {/* Buyer Option */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData(prev => ({ ...prev, role: 'BUYER' }));
+                    handleNextStep();
+                  }}
+                  className="w-full p-ios-lg rounded-ios-xl border-2 border-ios-blue-200 dark:border-ios-blue-800 hover:border-ios-blue-500 dark:hover:border-ios-blue-500 bg-gradient-to-br from-ios-blue-50 to-ios-purple-50 dark:from-ios-blue-900/20 dark:to-ios-purple-900/20 transition-all duration-200 active:scale-98 group"
+                >
+                  <div className="flex items-start gap-ios-md">
+                    <div className="w-12 h-12 bg-gradient-to-br from-ios-blue-500 to-ios-purple-500 rounded-ios-xl flex items-center justify-center shadow-ios-md group-hover:shadow-ios-lg transition-shadow">
+                      <ShoppingBag className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <h3 className="text-ios-title3 font-semibold text-gray-900 dark:text-white mb-ios-xs">
+                        I'm here to buy
+                      </h3>
+                      <p className="text-ios-footnote text-ios-gray-600 dark:text-ios-gray-400">
+                        Discover and purchase amazing digital products from talented creators
+                      </p>
+                    </div>
+                  </div>
+                </button>
+
+                {/* Seller Option */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData(prev => ({ ...prev, role: 'SELLER' }));
+                    handleNextStep();
+                  }}
+                  className="w-full p-ios-lg rounded-ios-xl border-2 border-ios-orange-200 dark:border-ios-orange-800 hover:border-ios-orange-500 dark:hover:border-ios-orange-500 bg-gradient-to-br from-ios-orange-50 to-ios-green-50 dark:from-ios-orange-900/20 dark:to-ios-green-900/20 transition-all duration-200 active:scale-98 group"
+                >
+                  <div className="flex items-start gap-ios-md">
+                    <div className="w-12 h-12 bg-gradient-to-br from-ios-orange-500 to-ios-green-500 rounded-ios-xl flex items-center justify-center shadow-ios-md group-hover:shadow-ios-lg transition-shadow">
+                      <Package className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <h3 className="text-ios-title3 font-semibold text-gray-900 dark:text-white mb-ios-xs">
+                        I'm here to sell
+                      </h3>
+                      <p className="text-ios-footnote text-ios-gray-600 dark:text-ios-gray-400">
+                        Share your digital creations and earn money from your talent
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              </div>
+
+              {/* Login Link */}
+              <div className="pt-ios-lg border-t border-ios-gray-200/50 dark:border-ios-gray-700/50 text-center">
+                <p className="text-ios-footnote text-ios-gray-600 dark:text-ios-gray-400">
+                  Already have an account?{' '}
+                  <Link
+                    href="/login"
+                    className="font-semibold text-ios-blue-500 hover:text-ios-blue-600 transition-colors"
+                  >
+                    Sign in
+                  </Link>
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 2: Email & Password */}
+          {currentStep === 2 && (
+            <form onSubmit={(e) => { e.preventDefault(); handleNextStep(); }} className="space-y-ios-md animate-ios-fade-in">
+              <IOSInput
+                label="Email"
                 type="email"
-                autoComplete="email"
-                required
+                name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition"
                 placeholder="you@example.com"
-              />
-            </div>
-
-            {/* Role Selection */}
-            <div>
-              <label
-                htmlFor="role"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Account Type
-              </label>
-              <select
-                id="role"
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition cursor-pointer"
-              >
-                <option value="BUYER">Buyer - Buy digital products</option>
-                <option value="SELLER">Seller - Sell digital products</option>
-              </select>
-            </div>
-
-            {/* Password Field */}
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
+                leftIcon={<Mail className="w-5 h-5" />}
                 required
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition"
-                placeholder="••••••••"
               />
 
-              {/* Password Strength Indicators */}
-              {formData.password && (
-                <div className="mt-2 space-y-1">
-                  <div className="flex items-center text-xs">
-                    <span
-                      className={`mr-2 ${
-                        passwordStrength.hasMinLength ? 'text-green-600 dark:text-green-400' : 'text-gray-400'
-                      }`}
-                    >
-                      {passwordStrength.hasMinLength ? '✓' : '○'}
-                    </span>
-                    <span className={passwordStrength.hasMinLength ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}>
-                      At least 8 characters
-                    </span>
-                  </div>
-                  <div className="flex items-center text-xs">
-                    <span
-                      className={`mr-2 ${
-                        passwordStrength.hasUppercase ? 'text-green-600 dark:text-green-400' : 'text-gray-400'
-                      }`}
-                    >
-                      {passwordStrength.hasUppercase ? '✓' : '○'}
-                    </span>
-                    <span className={passwordStrength.hasUppercase ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}>
-                      One uppercase letter
-                    </span>
-                  </div>
-                  <div className="flex items-center text-xs">
-                    <span
-                      className={`mr-2 ${
-                        passwordStrength.hasNumber ? 'text-green-600 dark:text-green-400' : 'text-gray-400'
-                      }`}
-                    >
-                      {passwordStrength.hasNumber ? '✓' : '○'}
-                    </span>
-                    <span className={passwordStrength.hasNumber ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}>
-                      One number
-                    </span>
-                  </div>
-                </div>
-              )}
-            </div>
+              <div>
+                <IOSInput
+                  label="Password"
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                  leftIcon={<Lock className="w-5 h-5" />}
+                  showPasswordToggle
+                  required
+                />
 
-            {/* Confirm Password Field */}
-            <div>
-              <label
-                htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword"
+                {formData.password && (
+                  <div className="mt-ios-xs space-y-ios-xs">
+                    <div className="flex items-center text-ios-caption2">
+                      <span className={passwordStrength.hasMinLength ? 'text-ios-green-500' : 'text-ios-gray-400'}>
+                        {passwordStrength.hasMinLength ? '✓' : '○'} At least 8 characters
+                      </span>
+                    </div>
+                    <div className="flex items-center text-ios-caption2">
+                      <span className={passwordStrength.hasUppercase ? 'text-ios-green-500' : 'text-ios-gray-400'}>
+                        {passwordStrength.hasUppercase ? '✓' : '○'} One uppercase letter
+                      </span>
+                    </div>
+                    <div className="flex items-center text-ios-caption2">
+                      <span className={passwordStrength.hasNumber ? 'text-ios-green-500' : 'text-ios-gray-400'}>
+                        {passwordStrength.hasNumber ? '✓' : '○'} One number
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <IOSInput
+                label="Confirm Password"
+                type="password"
                 name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                required
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition"
-                placeholder="••••••••"
+                placeholder="Confirm your password"
+                leftIcon={<Lock className="w-5 h-5" />}
+                showPasswordToggle
+                required
               />
-            </div>
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 ease-in-out transform hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:transform-none"
-            >
-              {isSubmitting ? 'Creating account...' : 'Create Account'}
-            </button>
-          </form>
-
-          {/* Divider */}
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+              <div className="flex gap-ios-sm pt-ios-md">
+                <IOSButton
+                  type="button"
+                  onClick={handlePrevStep}
+                  variant="ghost"
+                  size="lg"
+                  className="flex-1"
+                >
+                  Back
+                </IOSButton>
+                <IOSButton
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  className="flex-1"
+                >
+                  Continue
+                </IOSButton>
               </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
-                  Already have an account?
-                </span>
+            </form>
+          )}
+
+          {/* STEP 3: Profile Details */}
+          {currentStep === 3 && (
+            <form onSubmit={handleSubmit} className="space-y-ios-md animate-ios-fade-in">
+              <IOSInput
+                label="Full Name"
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder={isBuyer ? "John Doe" : "Your Business Name"}
+                leftIcon={<UserIcon className="w-5 h-5" />}
+              />
+
+              {/* Role-specific messaging */}
+              <div className={`p-ios-md rounded-ios-lg ${
+                isBuyer
+                  ? 'bg-ios-blue-50 dark:bg-ios-blue-900/20 border border-ios-blue-200 dark:border-ios-blue-800'
+                  : 'bg-ios-orange-50 dark:bg-ios-orange-900/20 border border-ios-orange-200 dark:border-ios-orange-800'
+              }`}>
+                <p className={`text-ios-footnote ${isBuyer ? 'text-ios-blue-600 dark:text-ios-blue-400' : 'text-ios-orange-600 dark:text-ios-orange-400'}`}>
+                  {isBuyer
+                    ? '🎉 As a buyer, you\'ll get instant access to thousands of digital products'
+                    : '🚀 As a seller, you\'ll be able to upload and sell your digital products instantly'
+                  }
+                </p>
               </div>
-            </div>
-          </div>
 
-          {/* Login Link */}
-          <div className="mt-6 text-center">
-            <Link
-              href="/login"
-              className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
-            >
-              Sign in instead
-            </Link>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-          By creating an account, you agree to our{' '}
-          <Link href="/terms" className="text-blue-600 hover:text-blue-500 dark:text-blue-400">
-            Terms of Service
-          </Link>{' '}
-          and{' '}
-          <Link href="/privacy" className="text-blue-600 hover:text-blue-500 dark:text-blue-400">
-            Privacy Policy
-          </Link>
-        </p>
+              <div className="flex gap-ios-sm pt-ios-md">
+                <IOSButton
+                  type="button"
+                  onClick={handlePrevStep}
+                  variant="ghost"
+                  size="lg"
+                  className="flex-1"
+                >
+                  Back
+                </IOSButton>
+                <IOSButton
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  fullWidth
+                  loading={isSubmitting}
+                  disabled={isSubmitting}
+                  className="flex-1"
+                >
+                  {isSubmitting ? 'Creating account...' : 'Create Account'}
+                </IOSButton>
+              </div>
+            </form>
+          )}
+        </IOSCard>
       </div>
     </div>
   );

@@ -11,6 +11,8 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotification } from '@/contexts/NotificationContext';
 import * as purchasesApi from '@/lib/api/purchases';
+import { IOSCard, IOSButton, IOSBadge } from '@/components/ios';
+import { ShoppingBag, Download, Package, DollarSign, Calendar, CheckCircle, Clock, XCircle, RotateCcw } from 'lucide-react';
 
 export default function PurchaseHistoryPage() {
   const router = useRouter();
@@ -67,28 +69,35 @@ export default function PurchaseHistoryPage() {
   };
 
   const getStatusBadge = (status: string) => {
-    const statusColors = {
-      COMPLETED: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-      PENDING: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-      FAILED: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-      REFUNDED: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
+    const statusVariants: { [key: string]: 'success' | 'warning' | 'danger' | 'secondary' } = {
+      COMPLETED: 'success',
+      PENDING: 'warning',
+      FAILED: 'danger',
+      REFUNDED: 'secondary',
     };
 
-    return (
-      <span
-        className={`px-2 py-1 text-xs font-semibold rounded-full ${
-          statusColors[status as keyof typeof statusColors] || statusColors.PENDING
-        }`}
-      >
-        {status}
-      </span>
-    );
+    const variant = statusVariants[status] || 'warning';
+
+    return <IOSBadge variant={variant}>{status}</IOSBadge>;
+  };
+
+  const getStatusIcon = (status: string) => {
+    const icons = {
+      COMPLETED: <CheckCircle className="w-4 h-4" />,
+      PENDING: <Clock className="w-4 h-4" />,
+      FAILED: <XCircle className="w-4 h-4" />,
+      REFUNDED: <RotateCcw className="w-4 h-4" />,
+    };
+    return icons[status as keyof typeof icons] || <Clock className="w-4 h-4" />;
   };
 
   if (isLoading || !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-ios-gray-50 via-white to-ios-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-ios-blue-900/20 flex items-center justify-center pt-16">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-ios-blue-500 border-t-transparent"></div>
+          <p className="mt-ios-md text-ios-body text-ios-gray-600 dark:text-ios-gray-400">Loading purchases...</p>
+        </div>
       </div>
     );
   }
@@ -103,46 +112,69 @@ export default function PurchaseHistoryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-ios-gray-50 via-white to-ios-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-ios-blue-900/20 pt-16">
+      <main className="max-w-7xl mx-auto px-ios-md sm:px-ios-lg lg:px-ios-xl py-ios-xl">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white">My Purchases</h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
+        <div className="mb-ios-xl animate-ios-fade-in">
+          <h1 className="text-ios-large-title font-bold text-gray-900 dark:text-white mb-ios-sm">My Purchases</h1>
+          <p className="text-ios-body text-ios-gray-600 dark:text-ios-gray-400">
             View and download your purchased products
           </p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Total Purchases</p>
-            <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Completed</p>
-            <p className="mt-2 text-3xl font-bold text-green-600 dark:text-green-400">
-              {stats.completed}
-            </p>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Total Spent</p>
-            <p className="mt-2 text-3xl font-bold text-blue-600 dark:text-blue-400">
-              {formatPrice(stats.totalSpent)}
-            </p>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-ios-lg mb-ios-xl">
+          <IOSCard blur hover padding="lg" className="animate-ios-scale-in">
+            <div className="flex items-center gap-ios-md">
+              <div className="w-12 h-12 bg-gradient-to-br from-ios-blue-500 to-ios-purple-500 rounded-ios-xl flex items-center justify-center">
+                <ShoppingBag className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="text-ios-caption1 text-ios-gray-600 dark:text-ios-gray-400">Total Purchases</p>
+                <p className="text-ios-title1 font-bold text-gray-900 dark:text-white">{stats.total}</p>
+              </div>
+            </div>
+          </IOSCard>
+
+          <IOSCard blur hover padding="lg" className="animate-ios-scale-in" style={{ animationDelay: '50ms' }}>
+            <div className="flex items-center gap-ios-md">
+              <div className="w-12 h-12 bg-gradient-to-br from-ios-green-500 to-ios-teal-500 rounded-ios-xl flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="text-ios-caption1 text-ios-gray-600 dark:text-ios-gray-400">Completed</p>
+                <p className="text-ios-title1 font-bold text-ios-green-600 dark:text-ios-green-400">
+                  {stats.completed}
+                </p>
+              </div>
+            </div>
+          </IOSCard>
+
+          <IOSCard blur hover padding="lg" className="animate-ios-scale-in" style={{ animationDelay: '100ms' }}>
+            <div className="flex items-center gap-ios-md">
+              <div className="w-12 h-12 bg-gradient-to-br from-ios-blue-500 to-ios-blue-600 rounded-ios-xl flex items-center justify-center">
+                <DollarSign className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="text-ios-caption1 text-ios-gray-600 dark:text-ios-gray-400">Total Spent</p>
+                <p className="text-ios-title1 font-bold text-ios-blue-600 dark:text-ios-blue-400">
+                  {formatPrice(stats.totalSpent)}
+                </p>
+              </div>
+            </div>
+          </IOSCard>
         </div>
 
         {/* Filter */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6">
-          <div className="flex items-center gap-4">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        <IOSCard blur padding="md" className="mb-ios-lg animate-ios-slide-up">
+          <div className="flex items-center gap-ios-md">
+            <label className="text-ios-footnote font-semibold text-ios-gray-700 dark:text-ios-gray-300">
               Filter:
             </label>
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value as any)}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+              className="px-ios-md py-ios-sm rounded-ios-lg bg-ios-gray-50 dark:bg-ios-gray-800 border-2 border-transparent text-ios-footnote text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-ios-blue-500/50 focus:border-ios-blue-500 transition-all"
             >
               <option value="ALL">All Purchases</option>
               <option value="COMPLETED">Completed</option>
@@ -151,122 +183,126 @@ export default function PurchaseHistoryPage() {
               <option value="REFUNDED">Refunded</option>
             </select>
           </div>
-        </div>
+        </IOSCard>
 
         {/* Purchases List */}
         {isLoadingPurchases ? (
-          <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
+          <div className="flex flex-col items-center justify-center py-ios-3xl">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-ios-blue-500 border-t-transparent"></div>
+            <p className="mt-ios-md text-ios-body text-ios-gray-600 dark:text-ios-gray-400">Loading purchases...</p>
           </div>
         ) : purchases.length === 0 ? (
-          <div className="text-center py-20 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-            <svg
-              className="mx-auto h-12 w-12 text-gray-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-              />
-            </svg>
-            <h3 className="mt-2 text-xl font-medium text-gray-900 dark:text-white">
-              No purchases yet
-            </h3>
-            <p className="mt-1 text-gray-600 dark:text-gray-400">
-              Start exploring the marketplace to find amazing products
-            </p>
-            <Link
-              href="/marketplace"
-              className="mt-6 inline-block px-6 py-3 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition"
-            >
-              Browse Marketplace
-            </Link>
-          </div>
+          <IOSCard blur padding="lg" className="text-center py-ios-3xl">
+            <div className="max-w-md mx-auto">
+              <div className="w-20 h-20 bg-ios-gray-100 dark:bg-ios-gray-800 rounded-full flex items-center justify-center mx-auto mb-ios-lg">
+                <ShoppingBag className="w-10 h-10 text-ios-gray-400" />
+              </div>
+              <h3 className="text-ios-title2 font-bold text-gray-900 dark:text-white mb-ios-sm">
+                No purchases yet
+              </h3>
+              <p className="text-ios-body text-ios-gray-600 dark:text-ios-gray-400 mb-ios-xl">
+                Start exploring the marketplace to find amazing products
+              </p>
+              <Link href="/marketplace">
+                <IOSButton variant="primary" size="lg">
+                  <Package className="w-4 h-4" />
+                  Browse Marketplace
+                </IOSButton>
+              </Link>
+            </div>
+          </IOSCard>
         ) : (
-          <div className="space-y-4">
-            {purchases.map((purchase) => (
-              <div
+          <div className="space-y-ios-lg">
+            {purchases.map((purchase, index) => (
+              <IOSCard
                 key={purchase.id}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition"
+                blur
+                hover
+                padding="lg"
+                className="animate-ios-slide-up"
+                style={{ animationDelay: `${index * 50}ms` }}
               >
-                <div className="p-6">
-                  <div className="flex items-start gap-4">
-                    {/* Product Image */}
+                <div className="flex flex-col sm:flex-row items-start gap-ios-md">
+                  {/* Product Image */}
+                  <Link href={`/marketplace/${purchase.product.slug}`} className="flex-shrink-0">
                     <img
                       src={purchase.product.coverImage}
                       alt={purchase.product.title}
-                      className="w-24 h-24 object-cover rounded-lg"
+                      className="w-full sm:w-24 h-24 object-cover rounded-ios-lg shadow-ios-sm hover:shadow-ios transition-shadow"
                     />
+                  </Link>
 
-                    {/* Product Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <Link
-                            href={`/marketplace/${purchase.product.slug}`}
-                            className="text-lg font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
-                          >
-                            {purchase.product.title}
-                          </Link>
-                          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                            Seller: {purchase.seller.name || 'Anonymous'}
-                          </p>
-                          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                            Purchased on {formatDate(purchase.createdAt)}
-                          </p>
-                        </div>
-                        <div className="text-right ml-4">
-                          <p className="text-xl font-bold text-gray-900 dark:text-white">
-                            {formatPrice(purchase.amount, purchase.currency)}
-                          </p>
-                          <p className="mt-1">{getStatusBadge(purchase.paymentStatus)}</p>
+                  {/* Product Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row items-start justify-between gap-ios-md">
+                      <div className="flex-1">
+                        <Link
+                          href={`/marketplace/${purchase.product.slug}`}
+                          className="text-ios-title3 font-semibold text-gray-900 dark:text-white hover:text-ios-blue-600 dark:hover:text-ios-blue-400 transition-colors"
+                        >
+                          {purchase.product.title}
+                        </Link>
+                        <p className="mt-ios-xs text-ios-footnote text-ios-gray-600 dark:text-ios-gray-400">
+                          Seller: {purchase.seller.name || 'Anonymous'}
+                        </p>
+                        <div className="flex items-center gap-ios-xs mt-ios-xs text-ios-caption1 text-ios-gray-500 dark:text-ios-gray-400">
+                          <Calendar className="w-3 h-3" />
+                          <span>{formatDate(purchase.createdAt)}</span>
                         </div>
                       </div>
+                      <div className="flex flex-row sm:flex-col items-start sm:items-end gap-ios-sm">
+                        <p className="text-ios-title3 font-bold text-gray-900 dark:text-white">
+                          {formatPrice(purchase.amount, purchase.currency)}
+                        </p>
+                        <div className="flex items-center gap-ios-xs">
+                          {getStatusIcon(purchase.paymentStatus)}
+                          {getStatusBadge(purchase.paymentStatus)}
+                        </div>
+                      </div>
+                    </div>
 
-                      {/* Actions */}
-                      <div className="mt-4 flex items-center gap-3">
-                        {purchase.paymentStatus === 'COMPLETED' && (
-                          <>
-                            <Link
-                              href={`/dashboard/purchases/${purchase.id}`}
-                              className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition"
-                            >
+                    {/* Actions */}
+                    <div className="mt-ios-md flex flex-wrap items-center gap-ios-sm">
+                      {purchase.paymentStatus === 'COMPLETED' && (
+                        <>
+                          <Link href={`/dashboard/purchases/${purchase.id}`}>
+                            <IOSButton variant="primary" size="sm">
+                              <Download className="w-4 h-4" />
                               Download Files
-                            </Link>
-                            {purchase.downloadCount > 0 && (
-                              <span className="text-xs text-gray-500 dark:text-gray-400">
-                                Downloaded {purchase.downloadCount} time{purchase.downloadCount > 1 ? 's' : ''}
-                                {purchase.lastDownloadAt &&
-                                  ` · Last: ${formatDate(purchase.lastDownloadAt)}`
-                                }
-                              </span>
-                            )}
-                          </>
-                        )}
-                        {purchase.paymentStatus === 'PENDING' && (
-                          <span className="text-sm text-yellow-600 dark:text-yellow-400">
-                            Payment pending...
-                          </span>
-                        )}
-                        {purchase.paymentStatus === 'FAILED' && (
-                          <span className="text-sm text-red-600 dark:text-red-400">
-                            Payment failed. Please contact support.
-                          </span>
-                        )}
-                        {purchase.paymentStatus === 'REFUNDED' && (
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
-                            This purchase has been refunded.
-                          </span>
-                        )}
-                      </div>
+                            </IOSButton>
+                          </Link>
+                          {purchase.downloadCount > 0 && (
+                            <span className="text-ios-caption1 text-ios-gray-500 dark:text-ios-gray-400">
+                              Downloaded {purchase.downloadCount} time{purchase.downloadCount > 1 ? 's' : ''}
+                              {purchase.lastDownloadAt &&
+                                ` · Last: ${formatDate(purchase.lastDownloadAt)}`
+                              }
+                            </span>
+                          )}
+                        </>
+                      )}
+                      {purchase.paymentStatus === 'PENDING' && (
+                        <span className="text-ios-footnote text-ios-orange-600 dark:text-ios-orange-400 flex items-center gap-ios-xs">
+                          <Clock className="w-4 h-4" />
+                          Payment pending...
+                        </span>
+                      )}
+                      {purchase.paymentStatus === 'FAILED' && (
+                        <span className="text-ios-footnote text-ios-red-600 dark:text-ios-red-400 flex items-center gap-ios-xs">
+                          <XCircle className="w-4 h-4" />
+                          Payment failed. Please contact support.
+                        </span>
+                      )}
+                      {purchase.paymentStatus === 'REFUNDED' && (
+                        <span className="text-ios-footnote text-ios-gray-600 dark:text-ios-gray-400 flex items-center gap-ios-xs">
+                          <RotateCcw className="w-4 h-4" />
+                          This purchase has been refunded.
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
-              </div>
+              </IOSCard>
             ))}
           </div>
         )}

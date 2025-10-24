@@ -11,6 +11,8 @@ import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotification } from '@/contexts/NotificationContext';
 import * as purchasesApi from '@/lib/api/purchases';
+import { IOSButton, IOSCard, IOSBadge } from '@/components/ios';
+import { ArrowLeft, Download, FileText, Info, Package } from 'lucide-react';
 
 export default function PurchaseDownloadPage() {
   const params = useParams();
@@ -85,61 +87,35 @@ export default function PurchaseDownloadPage() {
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   };
 
-  const getFileIcon = (fileName: string) => {
-    const ext = fileName.split('.').pop()?.toLowerCase();
-    const iconColors: Record<string, string> = {
-      pdf: 'text-red-600',
-      zip: 'text-yellow-600',
-      rar: 'text-yellow-600',
-      doc: 'text-blue-600',
-      docx: 'text-blue-600',
-      xls: 'text-green-600',
-      xlsx: 'text-green-600',
-      ppt: 'text-orange-600',
-      pptx: 'text-orange-600',
-      jpg: 'text-purple-600',
-      jpeg: 'text-purple-600',
-      png: 'text-purple-600',
-      gif: 'text-purple-600',
-      svg: 'text-purple-600',
-      mp4: 'text-pink-600',
-      mov: 'text-pink-600',
-      avi: 'text-pink-600',
-      mp3: 'text-indigo-600',
-      wav: 'text-indigo-600',
-    };
-
-    return iconColors[ext || ''] || 'text-gray-600';
-  };
-
   if (isLoading || !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-ios-gray-50 via-white to-ios-blue-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-ios-blue-900/10 flex items-center justify-center pt-16">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-ios-blue-500 border-t-transparent"></div>
+          <p className="mt-ios-sm text-ios-footnote text-ios-gray-600 dark:text-ios-gray-400">Loading...</p>
+        </div>
       </div>
     );
   }
 
   if (isLoadingDownload) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Link
-            href="/dashboard/purchases"
-            className="text-blue-600 dark:text-blue-400 hover:underline mb-4 inline-flex items-center gap-2"
+      <div className="min-h-screen bg-gradient-to-br from-ios-gray-50 via-white to-ios-blue-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-ios-blue-900/10 pt-16">
+        <main className="max-w-4xl mx-auto px-ios-md sm:px-ios-lg lg:px-ios-xl py-ios-lg">
+          <IOSButton
+            onClick={() => router.push('/dashboard/purchases')}
+            variant="ghost"
+            size="sm"
+            className="mb-ios-md"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10 19l-7-7m0 0l7-7m-7 7h18"
-              />
-            </svg>
+            <ArrowLeft className="w-4 h-4 mr-ios-xs" />
             Back to Purchases
-          </Link>
-          <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
+          </IOSButton>
+          <div className="flex justify-center items-center py-ios-3xl">
+            <div className="flex flex-col items-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-ios-blue-500 border-t-transparent"></div>
+              <p className="mt-ios-sm text-ios-footnote text-ios-gray-600 dark:text-ios-gray-400">Loading files...</p>
+            </div>
           </div>
         </main>
       </div>
@@ -148,164 +124,137 @@ export default function PurchaseDownloadPage() {
 
   if (!downloadData || downloadData.files.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Link
-            href="/dashboard/purchases"
-            className="text-blue-600 dark:text-blue-400 hover:underline mb-4 inline-flex items-center gap-2"
+      <div className="min-h-screen bg-gradient-to-br from-ios-gray-50 via-white to-ios-blue-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-ios-blue-900/10 pt-16">
+        <main className="max-w-4xl mx-auto px-ios-md sm:px-ios-lg lg:px-ios-xl py-ios-lg">
+          <IOSButton
+            onClick={() => router.push('/dashboard/purchases')}
+            variant="ghost"
+            size="sm"
+            className="mb-ios-md"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10 19l-7-7m0 0l7-7m-7 7h18"
-              />
-            </svg>
+            <ArrowLeft className="w-4 h-4 mr-ios-xs" />
             Back to Purchases
-          </Link>
-          <div className="text-center py-20 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-            <h3 className="text-xl font-medium text-gray-900 dark:text-white">
+          </IOSButton>
+          <IOSCard blur padding="md" className="text-center py-ios-3xl animate-ios-fade-in">
+            <div className="w-16 h-16 bg-ios-gray-100 dark:bg-ios-gray-800 rounded-full flex items-center justify-center mx-auto mb-ios-md">
+              <Package className="w-8 h-8 text-ios-gray-400" />
+            </div>
+            <h3 className="text-ios-title2 font-bold text-gray-900 dark:text-white mb-ios-xs">
               No files available
             </h3>
-            <p className="mt-1 text-gray-600 dark:text-gray-400">
+            <p className="text-ios-footnote text-ios-gray-600 dark:text-ios-gray-400">
               This purchase does not have any downloadable files.
             </p>
-          </div>
+          </IOSCard>
         </main>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-ios-gray-50 via-white to-ios-blue-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-ios-blue-900/10 pt-16">
+      <main className="max-w-4xl mx-auto px-ios-md sm:px-ios-lg lg:px-ios-xl py-ios-lg">
         {/* Back Button */}
-        <Link
-          href="/dashboard/purchases"
-          className="text-blue-600 dark:text-blue-400 hover:underline mb-4 inline-flex items-center gap-2"
+        <IOSButton
+          onClick={() => router.push('/dashboard/purchases')}
+          variant="ghost"
+          size="sm"
+          className="mb-ios-md animate-ios-fade-in"
         >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
-            />
-          </svg>
+          <ArrowLeft className="w-4 h-4 mr-ios-xs" />
           Back to Purchases
-        </Link>
+        </IOSButton>
 
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Download Files</h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
+        <div className="mb-ios-lg animate-ios-fade-in" style={{ animationDelay: '100ms' }}>
+          <h1 className="text-ios-large-title font-bold text-gray-900 dark:text-white mb-ios-xs">
+            Download Files
+          </h1>
+          <p className="text-ios-footnote text-ios-gray-600 dark:text-ios-gray-400">
             Download your purchased product files
           </p>
           {downloadData.downloadCount > 0 && (
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <IOSBadge variant="secondary" className="mt-ios-xs">
               Downloaded {downloadData.downloadCount} time{downloadData.downloadCount > 1 ? 's' : ''}
-            </p>
+            </IOSBadge>
           )}
         </div>
 
         {/* Info Box */}
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-          <div className="flex items-start">
-            <svg
-              className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 mr-3"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <div className="flex-1">
-              <h3 className="text-sm font-medium text-blue-900 dark:text-blue-300">
+        <IOSCard
+          blur
+          padding="sm"
+          className="mb-ios-md bg-ios-blue-50/80 dark:bg-ios-blue-900/20 border-ios-blue-200 dark:border-ios-blue-800 animate-ios-fade-in"
+          style={{ animationDelay: '200ms' }}
+        >
+          <div className="flex items-start gap-ios-sm">
+            <div className="w-8 h-8 bg-gradient-to-br from-ios-blue-500 to-ios-cyan-500 rounded-ios-md flex items-center justify-center flex-shrink-0">
+              <Info className="w-4 h-4 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-ios-footnote font-semibold text-ios-blue-900 dark:text-ios-blue-300 mb-1">
                 Download Information
               </h3>
-              <p className="mt-1 text-sm text-blue-800 dark:text-blue-400">
+              <p className="text-ios-caption1 text-ios-blue-800 dark:text-ios-blue-400">
                 These files are available for download as long as you own this product. Save them to
                 your device for offline access.
               </p>
             </div>
           </div>
-        </div>
+        </IOSCard>
 
         {/* Files List */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div className="divide-y divide-gray-200 dark:divide-gray-700">
+        <IOSCard blur padding="none" className="overflow-hidden animate-ios-slide-up" style={{ animationDelay: '300ms' }}>
+          <div className="divide-y divide-ios-gray-200 dark:divide-ios-gray-700">
             {downloadData.files.map((file, index) => (
               <div
                 key={index}
-                className="p-6 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition"
+                className="p-ios-md hover:bg-ios-gray-50 dark:hover:bg-ios-gray-800/50 transition-colors"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center flex-1 min-w-0">
-                    {/* File Icon */}
-                    <div
-                      className={`flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center ${getFileIcon(
-                        file.name
-                      )} bg-gray-100 dark:bg-gray-700`}
-                    >
-                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path
-                          fillRule="evenodd"
-                          d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
+                <div className="flex items-center gap-ios-sm">
+                  {/* File Icon */}
+                  <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-ios-blue-500 to-ios-purple-500 rounded-ios-md flex items-center justify-center shadow-ios-sm">
+                    <FileText className="w-5 h-5 text-white" />
+                  </div>
 
-                    {/* File Info */}
-                    <div className="ml-4 flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                        {file.name}
-                      </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {formatFileSize(file.size)}
-                      </p>
-                    </div>
+                  {/* File Info */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-ios-footnote font-medium text-gray-900 dark:text-white truncate">
+                      {file.name}
+                    </p>
+                    <p className="text-ios-caption1 text-ios-gray-500 dark:text-ios-gray-400">
+                      {formatFileSize(file.size)}
+                    </p>
                   </div>
 
                   {/* Download Button */}
-                  <button
+                  <IOSButton
                     onClick={() => handleDownload(file.url, file.name)}
                     disabled={downloadingFiles.has(file.name)}
-                    className="ml-4 px-6 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    variant="primary"
+                    size="sm"
+                    className="flex-shrink-0"
+                    loading={downloadingFiles.has(file.name)}
                   >
                     {downloadingFiles.has(file.name) ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                        Downloading...
-                      </>
+                      'Downloading...'
                     ) : (
                       <>
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
-                          />
-                        </svg>
+                        <Download className="w-4 h-4 mr-ios-xs" />
                         Download
                       </>
                     )}
-                  </button>
+                  </IOSButton>
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </IOSCard>
 
-        {/* Download All Button */}
+        {/* Tip */}
         {downloadData.files.length > 1 && (
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          <div className="mt-ios-md text-center animate-ios-fade-in" style={{ animationDelay: '400ms' }}>
+            <p className="text-ios-caption1 text-ios-gray-600 dark:text-ios-gray-400">
               Tip: Download files individually for better control
             </p>
           </div>
