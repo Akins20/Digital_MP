@@ -1,8 +1,7 @@
 'use client';
 
 import { IOSCard, IOSInput, IOSButton } from '@/components/ios';
-import Footer from '@/components/Footer';
-import { Mail, MessageSquare, Phone, MapPin } from 'lucide-react';
+import { Mail, MessageSquare, Phone } from 'lucide-react';
 
 export default function ContactPage() {
   return (
@@ -51,8 +50,6 @@ export default function ContactPage() {
           </form>
         </IOSCard>
       </div>
-
-      <Footer />
     </div>
   );
 }

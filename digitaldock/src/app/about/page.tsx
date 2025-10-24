@@ -1,7 +1,6 @@
 'use client';
 
 import { IOSCard } from '@/components/ios';
-import Footer from '@/components/Footer';
 import { Users, Target, Award, Heart } from 'lucide-react';
 
 export default function AboutPage() {
@@ -44,8 +43,6 @@ export default function AboutPage() {
           ))}
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 }

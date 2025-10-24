@@ -14,21 +14,17 @@ export default function Footer() {
   const footerLinks = {
     product: [
       { label: 'Marketplace', href: '/marketplace' },
-      { label: 'Pricing', href: '/pricing' },
       { label: 'Features', href: '/#features' },
       { label: 'How It Works', href: '/#how-it-works' },
     ],
     company: [
       { label: 'About Us', href: '/about' },
       { label: 'Contact', href: '/contact' },
-      { label: 'Blog', href: '/blog' },
-      { label: 'Careers', href: '/careers' },
     ],
     support: [
       { label: 'Help Center', href: '/help' },
       { label: 'FAQs', href: '/faq' },
       { label: 'Community', href: '/community' },
-      { label: 'Status', href: '/status' },
     ],
     legal: [
       { label: 'Terms of Service', href: '/legal/terms' },
