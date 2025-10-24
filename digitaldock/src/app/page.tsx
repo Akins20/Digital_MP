@@ -7,7 +7,7 @@ import { IOSCard, IOSButton, IOSBadge } from '@/components/ios';
 import { Search, Lock, Zap, Shield, LayoutGrid, Star, TrendingUp, ArrowRight, FileText, Palette, Code, Music, Box, BookOpen, Image, Video, Type, Blocks, Package } from 'lucide-react';
 
 interface Product {
-  _id: string;
+  id: string;
   title: string;
   description: string;
   price: number;
@@ -207,7 +207,7 @@ export default function Home() {
           ) : featuredProducts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-ios-md">
               {featuredProducts.map((product) => (
-                <Link key={product._id} href={`/product/${product._id}`}>
+                <Link key={product.id} href={`/product/${product.id}`}>
                   <IOSCard blur hover padding="none" className="overflow-hidden cursor-pointer group">
                     <div className="relative w-full h-48 bg-gradient-to-br from-ios-blue-400 to-ios-purple-500 flex items-center justify-center overflow-hidden">
                       {product.coverImage ? (

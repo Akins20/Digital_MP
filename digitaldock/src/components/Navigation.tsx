@@ -13,7 +13,7 @@ import { IOSButton } from '@/components/ios';
 import { Menu, X, Home, ShoppingBag, LayoutGrid, Package, LogOut, User, Settings, ChevronDown, Search, Box } from 'lucide-react';
 
 interface SearchResult {
-  _id: string;
+  id: string;
   title: string;
   description: string;
   price: number;
@@ -181,8 +181,8 @@ export default function Navigation() {
               <div className="absolute top-full left-0 right-0 mt-2 bg-white/95 dark:bg-gray-900/95 backdrop-blur-ios-md rounded-ios-xl shadow-ios-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden animate-ios-scale-in origin-top max-h-96 overflow-y-auto">
                 {searchResults.map((product) => (
                   <Link
-                    key={product._id}
-                    href={`/product/${product._id}`}
+                    key={product.id}
+                    href={`/product/${product.id}`}
                     onClick={() => {
                       setShowSearchDropdown(false);
                       setSearchQuery('');
