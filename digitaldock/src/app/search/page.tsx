@@ -8,6 +8,7 @@ import { Search, Filter, SlidersHorizontal, Star, X, Package } from 'lucide-reac
 
 interface Product {
   id: string;
+  slug: string;
   title: string;
   description: string;
   price: number;
@@ -326,7 +327,7 @@ export default function SearchPage() {
         ) : products.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-ios-md">
             {products.map((product) => (
-              <Link key={product.id} href={`/product/${product.id}`}>
+              <Link key={product.id} href={`/product/${product.slug}`}>
                 <IOSCard blur hover padding="none" className="overflow-hidden cursor-pointer group h-full">
                   <div className="relative w-full h-48 bg-gradient-to-br from-ios-blue-400 to-ios-purple-500 flex items-center justify-center overflow-hidden">
                     {product.coverImage ? (

@@ -14,6 +14,7 @@ import { Menu, X, Home, ShoppingBag, LayoutGrid, Package, LogOut, User, Settings
 
 interface SearchResult {
   id: string;
+  slug: string;
   title: string;
   description: string;
   price: number;
@@ -182,7 +183,7 @@ export default function Navigation() {
                 {searchResults.map((product) => (
                   <Link
                     key={product.id}
-                    href={`/product/${product.id}`}
+                    href={`/product/${product.slug}`}
                     onClick={() => {
                       setShowSearchDropdown(false);
                       setSearchQuery('');
