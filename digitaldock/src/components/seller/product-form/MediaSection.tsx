@@ -26,7 +26,7 @@ export default function MediaSection({
   isUploadingImages,
 }: MediaSectionProps) {
   return (
-    <IOSCard blur padding="md" className="animate-ios-scale-in" style={{ animationDelay: '100ms' }}>
+    <IOSCard blur padding="md" className="animate-ios-scale-in">
       <div className="flex items-center gap-ios-sm mb-ios-sm">
         <div className="w-10 h-10 bg-gradient-to-br from-ios-blue-500 to-ios-purple-500 rounded-ios-lg flex items-center justify-center">
           <ImageIcon className="w-5 h-5 text-white" />

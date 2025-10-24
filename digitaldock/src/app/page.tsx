@@ -221,7 +221,7 @@ export default function Home() {
                         <Package className="w-16 h-16 text-white/80" />
                       )}
                       <div className="absolute top-ios-sm right-ios-sm">
-                        <IOSBadge variant="primary">{product.category}</IOSBadge>
+                        <IOSBadge variant="blue">{product.category}</IOSBadge>
                       </div>
                     </div>
                     <div className="p-ios-md">

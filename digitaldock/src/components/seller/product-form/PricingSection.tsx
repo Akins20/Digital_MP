@@ -11,7 +11,7 @@ interface PricingSectionProps {
 
 export default function PricingSection({ formData, onChange }: PricingSectionProps) {
   return (
-    <IOSCard blur padding="md" className="animate-ios-scale-in" style={{ animationDelay: '50ms' }}>
+    <IOSCard blur padding="md" className="animate-ios-scale-in">
       <h3 className="text-ios-title3 font-bold text-gray-900 dark:text-white mb-ios-sm">Pricing</h3>
 
       <div className="grid grid-cols-2 gap-ios-sm">

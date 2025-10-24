@@ -174,9 +174,11 @@ export default function PurchaseDownloadPage() {
             Download your purchased product files
           </p>
           {downloadData.downloadCount > 0 && (
-            <IOSBadge variant="secondary" className="mt-ios-xs">
-              Downloaded {downloadData.downloadCount} time{downloadData.downloadCount > 1 ? 's' : ''}
-            </IOSBadge>
+            <div className="mt-ios-xs">
+              <IOSBadge variant="gray">
+                Downloaded {downloadData.downloadCount} time{downloadData.downloadCount > 1 ? 's' : ''}
+              </IOSBadge>
+            </div>
           )}
         </div>
 
@@ -185,7 +187,6 @@ export default function PurchaseDownloadPage() {
           blur
           padding="sm"
           className="mb-ios-md bg-ios-blue-50/80 dark:bg-ios-blue-900/20 border-ios-blue-200 dark:border-ios-blue-800 animate-ios-fade-in"
-          style={{ animationDelay: '200ms' }}
         >
           <div className="flex items-start gap-ios-sm">
             <div className="w-8 h-8 bg-gradient-to-br from-ios-blue-500 to-ios-cyan-500 rounded-ios-md flex items-center justify-center flex-shrink-0">
@@ -204,7 +205,7 @@ export default function PurchaseDownloadPage() {
         </IOSCard>
 
         {/* Files List */}
-        <IOSCard blur padding="none" className="overflow-hidden animate-ios-slide-up" style={{ animationDelay: '300ms' }}>
+        <IOSCard blur padding="none" className="overflow-hidden animate-ios-slide-up">
           <div className="divide-y divide-ios-gray-200 dark:divide-ios-gray-700">
             {downloadData.files.map((file, index) => (
               <div

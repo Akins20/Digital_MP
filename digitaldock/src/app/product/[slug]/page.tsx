@@ -5,7 +5,7 @@
  * Display full product information and purchase options
  */
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Script from 'next/script';
@@ -35,7 +35,7 @@ declare global {
   }
 }
 
-export default function ProductDetailPage() {
+function ProductDetailContent() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -64,7 +64,7 @@ export default function ProductDetailPage() {
       setIsLoading(true);
       // The backend getProduct endpoint accepts both ID and slug
       // Pass token to allow sellers to view their own draft products
-      const response = await productsApi.getProduct(params.slug as string, token);
+      const response = await productsApi.getProduct(params.slug as string, token || undefined);
       setProduct(response.product);
     } catch (error) {
       console.error('Failed to load product:', error);
@@ -270,7 +270,9 @@ export default function ProductDetailPage() {
             <IOSCard blur padding="md" className="shadow-ios-md sticky top-20">
               {/* Category & Title */}
               <div className="mb-ios-sm">
-                <IOSBadge variant="primary" className="mb-ios-xs">{product.category}</IOSBadge>
+                <div className="mb-ios-xs">
+                  <IOSBadge variant="blue">{product.category}</IOSBadge>
+                </div>
                 <h1 className="text-ios-title1 font-bold text-gray-900 dark:text-white leading-tight">
                   {product.title}
                 </h1>
@@ -335,7 +337,7 @@ export default function ProductDetailPage() {
                       <span className="text-ios-body text-ios-gray-500 dark:text-ios-gray-400 line-through">
                         {formatPrice(product.originalPrice, product.currency)}
                       </span>
-                      <IOSBadge variant="danger">
+                      <IOSBadge variant="red">
                         -{product.discountPercentage}%
                       </IOSBadge>
                     </>
@@ -486,7 +488,7 @@ export default function ProductDetailPage() {
                 </div>
                 <div className="flex flex-wrap gap-ios-xs">
                   {product.tags.map((tag, index) => (
-                    <IOSBadge key={index} variant="secondary">
+                    <IOSBadge key={index} variant="gray">
                       {tag}
                     </IOSBadge>
                   ))}
@@ -505,5 +507,13 @@ export default function ProductDetailPage() {
       </main>
     </div>
     </>
+  );
+}
+
+export default function ProductDetailPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <ProductDetailContent />
+    </Suspense>
   );
 }

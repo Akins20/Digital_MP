@@ -5,7 +5,7 @@
  * Displayed after successful payment completion
  */
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,7 +13,7 @@ import * as purchasesApi from '@/lib/api/purchases';
 import { IOSButton, IOSCard } from '@/components/ios';
 import { CheckCircle, Download, ArrowRight, Package } from 'lucide-react';
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { token } = useAuth();
@@ -177,5 +177,13 @@ export default function PaymentSuccessPage() {
         </p>
       </IOSCard>
     </div>
+  );
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <PaymentSuccessContent />
+    </Suspense>
   );
 }

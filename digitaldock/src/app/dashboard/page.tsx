@@ -58,7 +58,7 @@ function DashboardContent() {
           </IOSCard>
 
           <Link href={isSeller ? '/seller/products' : '/dashboard/purchases'} className="block">
-            <IOSCard blur hover padding="lg" className="h-full animate-ios-scale-in" style={{ animationDelay: '50ms' }}>
+            <IOSCard blur hover padding="lg" className="h-full animate-ios-scale-in">
               <div className="flex items-center gap-ios-md">
                 <div className="w-12 h-12 bg-gradient-to-br from-ios-purple-500 to-ios-pink-500 rounded-ios-xl flex items-center justify-center">
                   {isSeller ? <Package className="w-6 h-6 text-white" /> : <ShoppingBag className="w-6 h-6 text-white" />}
@@ -74,7 +74,7 @@ function DashboardContent() {
           </Link>
 
           <Link href="/dashboard/settings" className="block">
-            <IOSCard blur hover padding="lg" className="h-full animate-ios-scale-in" style={{ animationDelay: '100ms' }}>
+            <IOSCard blur hover padding="lg" className="h-full animate-ios-scale-in">
               <div className="flex items-center gap-ios-md">
                 <div className="w-12 h-12 bg-gradient-to-br from-ios-gray-500 to-ios-gray-600 rounded-ios-xl flex items-center justify-center">
                   <Settings className="w-6 h-6 text-white" />
@@ -155,7 +155,7 @@ function DashboardContent() {
                 <p className="text-ios-footnote font-semibold text-ios-gray-700 dark:text-ios-gray-300 mb-ios-xs">
                   Premium Status
                 </p>
-                <IOSBadge variant={user?.isPremium ? 'warning' : 'secondary'}>
+                <IOSBadge variant={user?.isPremium ? 'orange' : 'gray'}>
                   {user?.isPremium ? 'Premium' : 'Free'}
                 </IOSBadge>
               </div>
@@ -171,7 +171,7 @@ function DashboardContent() {
                   <p className="text-ios-footnote font-semibold text-ios-gray-700 dark:text-ios-gray-300 mb-ios-xs">
                     Verification Status
                   </p>
-                  <IOSBadge variant={user?.isVerifiedSeller ? 'success' : 'warning'}>
+                  <IOSBadge variant={user?.isVerifiedSeller ? 'green' : 'orange'}>
                     {user?.isVerifiedSeller ? 'Verified' : 'Not Verified'}
                   </IOSBadge>
                 </div>

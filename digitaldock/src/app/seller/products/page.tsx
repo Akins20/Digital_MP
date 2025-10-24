@@ -138,14 +138,14 @@ export default function SellerProductsPage() {
   };
 
   const getStatusBadge = (status: string) => {
-    const statusVariants: { [key: string]: 'success' | 'warning' | 'secondary' } = {
-      PUBLISHED: 'success',
-      DRAFT: 'warning',
-      ARCHIVED: 'secondary',
+    const statusVariants: { [key: string]: 'green' | 'orange' | 'gray' } = {
+      PUBLISHED: 'green',
+      DRAFT: 'orange',
+      ARCHIVED: 'gray',
     };
 
     return (
-      <IOSBadge variant={statusVariants[status] || 'warning'}>
+      <IOSBadge variant={statusVariants[status] || 'orange'}>
         {status}
       </IOSBadge>
     );
@@ -213,7 +213,7 @@ export default function SellerProductsPage() {
             <p className="text-ios-title1 font-bold text-gray-900 dark:text-white">{stats.total}</p>
           </IOSCard>
 
-          <IOSCard blur hover padding="lg" className="animate-ios-scale-in" style={{ animationDelay: '50ms' }}>
+          <IOSCard blur hover padding="lg" className="animate-ios-scale-in">
             <div className="flex items-center gap-ios-sm mb-ios-xs">
               <CheckCircle className="w-5 h-5 text-ios-green-500" />
               <p className="text-ios-caption1 text-ios-gray-600 dark:text-ios-gray-400">Published</p>
@@ -223,7 +223,7 @@ export default function SellerProductsPage() {
             </p>
           </IOSCard>
 
-          <IOSCard blur hover padding="lg" className="animate-ios-scale-in" style={{ animationDelay: '100ms' }}>
+          <IOSCard blur hover padding="lg" className="animate-ios-scale-in">
             <div className="flex items-center gap-ios-sm mb-ios-xs">
               <FileText className="w-5 h-5 text-ios-orange-500" />
               <p className="text-ios-caption1 text-ios-gray-600 dark:text-ios-gray-400">Drafts</p>
@@ -233,7 +233,7 @@ export default function SellerProductsPage() {
             </p>
           </IOSCard>
 
-          <IOSCard blur hover padding="lg" className="animate-ios-scale-in" style={{ animationDelay: '150ms' }}>
+          <IOSCard blur hover padding="lg" className="animate-ios-scale-in">
             <div className="flex items-center gap-ios-sm mb-ios-xs">
               <TrendingUp className="w-5 h-5 text-ios-blue-500" />
               <p className="text-ios-caption1 text-ios-gray-600 dark:text-ios-gray-400">Total Sales</p>
@@ -243,7 +243,7 @@ export default function SellerProductsPage() {
             </p>
           </IOSCard>
 
-          <IOSCard blur hover padding="lg" className="animate-ios-scale-in" style={{ animationDelay: '200ms' }}>
+          <IOSCard blur hover padding="lg" className="animate-ios-scale-in">
             <div className="flex items-center gap-ios-sm mb-ios-xs">
               <DollarSign className="w-5 h-5 text-ios-purple-500" />
               <p className="text-ios-caption1 text-ios-gray-600 dark:text-ios-gray-400">Revenue</p>
@@ -333,7 +333,6 @@ export default function SellerProductsPage() {
                   hover
                   padding="none"
                   className="animate-ios-slide-up overflow-hidden"
-                  style={{ animationDelay: `${index * 30}ms` }}
                 >
                   <div className="flex flex-col sm:flex-row">
                     {/* Product Image - Full Left Side */}

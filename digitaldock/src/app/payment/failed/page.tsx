@@ -5,13 +5,13 @@
  * Displayed when payment fails or is cancelled
  */
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { IOSButton, IOSCard } from '@/components/ios';
 import { XCircle, ArrowLeft, RefreshCw, HelpCircle } from 'lucide-react';
 
-export default function PaymentFailedPage() {
+function PaymentFailedContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [reason, setReason] = useState<string>('');
@@ -137,5 +137,13 @@ export default function PaymentFailedPage() {
         </div>
       </IOSCard>
     </div>
+  );
+}
+
+export default function PaymentFailedPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <PaymentFailedContent />
+    </Suspense>
   );
 }

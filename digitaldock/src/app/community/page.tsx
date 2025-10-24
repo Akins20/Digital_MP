@@ -169,10 +169,10 @@ export default function CommunityPage() {
                   <IOSBadge
                     variant={
                       feature.badge === 'Active'
-                        ? 'success'
+                        ? 'green'
                         : feature.badge === 'Exclusive'
-                        ? 'primary'
-                        : 'secondary'
+                        ? 'blue'
+                        : 'gray'
                     }
                   >
                     {feature.badge}

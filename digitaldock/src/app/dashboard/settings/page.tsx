@@ -265,7 +265,7 @@ export default function ProfileSettingsPage() {
             </IOSCard>
 
             {/* Quick Links */}
-            <IOSCard blur padding="lg" className="animate-ios-scale-in" style={{ animationDelay: '50ms' }}>
+            <IOSCard blur padding="lg" className="animate-ios-scale-in">
               <h3 className="text-ios-title3 font-semibold text-gray-900 dark:text-white mb-ios-md">
                 Quick Links
               </h3>
@@ -408,7 +408,7 @@ export default function ProfileSettingsPage() {
                           </p>
                           {profile.user.isVerifiedSeller && (
                             <div className="flex items-center gap-ios-xs mt-ios-xs">
-                              <IOSBadge variant="success">Verified Seller</IOSBadge>
+                              <IOSBadge variant="green">Verified Seller</IOSBadge>
                             </div>
                           )}
                         </div>
@@ -433,7 +433,7 @@ export default function ProfileSettingsPage() {
             </form>
 
             {/* Change Password */}
-            <IOSCard blur padding="lg" className="animate-ios-slide-up" style={{ animationDelay: '50ms' }}>
+            <IOSCard blur padding="lg" className="animate-ios-slide-up">
               <div className="flex items-center gap-ios-sm mb-ios-lg">
                 <Lock className="w-5 h-5 text-ios-blue-500" />
                 <h2 className="text-ios-title2 font-bold text-gray-900 dark:text-white">
@@ -514,7 +514,7 @@ export default function ProfileSettingsPage() {
 
             {/* Upgrade to Seller */}
             {user?.role === 'BUYER' && (
-              <IOSCard padding="lg" className="bg-gradient-to-br from-ios-blue-500 to-ios-purple-600 border-0 animate-ios-scale-in" style={{ animationDelay: '100ms' }}>
+              <IOSCard padding="lg" className="bg-gradient-to-br from-ios-blue-500 to-ios-purple-600 border-0 animate-ios-scale-in">
                 <div className="text-white">
                   <h2 className="text-ios-title2 font-bold mb-ios-sm">Become a Seller</h2>
                   <p className="text-ios-body text-white/90 mb-ios-lg">
@@ -531,7 +531,7 @@ export default function ProfileSettingsPage() {
             )}
 
             {/* Danger Zone */}
-            <IOSCard blur padding="lg" className="border-2 border-ios-red-200 dark:border-ios-red-800 animate-ios-slide-up" style={{ animationDelay: '150ms' }}>
+            <IOSCard blur padding="lg" className="border-2 border-ios-red-200 dark:border-ios-red-800 animate-ios-slide-up">
               <div className="flex items-center gap-ios-sm mb-ios-lg">
                 <AlertTriangle className="w-5 h-5 text-ios-red-500" />
                 <h2 className="text-ios-title2 font-bold text-ios-red-600 dark:text-ios-red-400">

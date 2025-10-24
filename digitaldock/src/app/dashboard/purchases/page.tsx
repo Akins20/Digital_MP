@@ -69,14 +69,14 @@ export default function PurchaseHistoryPage() {
   };
 
   const getStatusBadge = (status: string) => {
-    const statusVariants: { [key: string]: 'success' | 'warning' | 'danger' | 'secondary' } = {
-      COMPLETED: 'success',
-      PENDING: 'warning',
-      FAILED: 'danger',
-      REFUNDED: 'secondary',
+    const statusVariants: { [key: string]: 'green' | 'orange' | 'red' | 'gray' } = {
+      COMPLETED: 'green',
+      PENDING: 'orange',
+      FAILED: 'red',
+      REFUNDED: 'gray',
     };
 
-    const variant = statusVariants[status] || 'warning';
+    const variant = statusVariants[status] || 'orange';
 
     return <IOSBadge variant={variant}>{status}</IOSBadge>;
   };
@@ -136,7 +136,7 @@ export default function PurchaseHistoryPage() {
             </div>
           </IOSCard>
 
-          <IOSCard blur hover padding="lg" className="animate-ios-scale-in" style={{ animationDelay: '50ms' }}>
+          <IOSCard blur hover padding="lg" className="animate-ios-scale-in">
             <div className="flex items-center gap-ios-md">
               <div className="w-12 h-12 bg-gradient-to-br from-ios-green-500 to-ios-teal-500 rounded-ios-xl flex items-center justify-center">
                 <CheckCircle className="w-6 h-6 text-white" />
@@ -150,7 +150,7 @@ export default function PurchaseHistoryPage() {
             </div>
           </IOSCard>
 
-          <IOSCard blur hover padding="lg" className="animate-ios-scale-in" style={{ animationDelay: '100ms' }}>
+          <IOSCard blur hover padding="lg" className="animate-ios-scale-in">
             <div className="flex items-center gap-ios-md">
               <div className="w-12 h-12 bg-gradient-to-br from-ios-blue-500 to-ios-blue-600 rounded-ios-xl flex items-center justify-center">
                 <DollarSign className="w-6 h-6 text-white" />
@@ -220,7 +220,6 @@ export default function PurchaseHistoryPage() {
                 hover
                 padding="lg"
                 className="animate-ios-slide-up"
-                style={{ animationDelay: `${index * 50}ms` }}
               >
                 <div className="flex flex-col sm:flex-row items-start gap-ios-md">
                   {/* Product Image */}

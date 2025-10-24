@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { IOSCard, IOSBadge, IOSButton } from '@/components/ios';
@@ -22,7 +22,7 @@ interface Product {
   totalSales?: number;
 }
 
-export default function SearchPage() {
+function SearchPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const query = searchParams.get('q') || '';
@@ -340,7 +340,7 @@ export default function SearchPage() {
                       <Package className="w-16 h-16 text-white/80" />
                     )}
                     <div className="absolute top-ios-sm right-ios-sm">
-                      <IOSBadge variant="primary">{product.category}</IOSBadge>
+                      <IOSBadge variant="blue">{product.category}</IOSBadge>
                     </div>
                   </div>
                   <div className="p-ios-md">
@@ -411,5 +411,13 @@ export default function SearchPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <SearchPageContent />
+    </Suspense>
   );
 }
